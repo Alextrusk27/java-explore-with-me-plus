@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ru.practicum</groupId>
-        <artifactId>explore-with-me</artifactId>
+        <artifactId>stats</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <name>EWM Stats Service</name>
+    <name>Stats Client</name>
 
-    <artifactId>ewm-stats-svc</artifactId>
+    <artifactId>stats-client</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
