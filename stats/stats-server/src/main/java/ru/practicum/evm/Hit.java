@@ -26,32 +26,16 @@ public class Hit {
         this.id = id;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public String getIp() {
-        return ip;
     }
 
     public void setIp(String ip) {
         this.ip = ip;
     }
 
-    public String getUri() {
-        return uri;
-    }
-
     public void setUri(String uri) {
         this.uri = uri;
-    }
-
-    public String getApp() {
-        return app;
     }
 
     public void setApp(String app) {
