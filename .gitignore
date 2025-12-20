@@ -23,5 +23,5 @@ target/
 
 # Checkstyle
 checkstyle.xml
-config/checkstyle.xml
+checkstyle.xml
 
