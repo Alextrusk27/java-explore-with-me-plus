@@ -248,7 +248,6 @@
 		<module name="SuppressWarningsHolder"/>
 		<module name="SuppressionCommentFilter"/>
 	</module>
-	<!--	<module name="NewlineAtEndOfFile"/>-->
 	<module name="SuppressWarningsFilter"/>
 	<module name="SuppressionFilter">
 		<property name="file" value="suppressions.xml"/>
