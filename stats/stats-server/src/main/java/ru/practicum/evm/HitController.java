@@ -12,10 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping
-@RequiredArgsConstructor
 public class HitController {
 
     private final HitService service;
+
+    public HitController(HitService service) {
+        this.service = service;
+    }
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)

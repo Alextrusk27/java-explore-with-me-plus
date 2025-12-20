@@ -11,10 +11,13 @@ import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class HitService {
 
     private final HitRepository repository;
+
+    public HitService(HitRepository repository) {
+        this.repository = repository;
+    }
 
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         if (unique) {
