@@ -3,7 +3,7 @@ package ru.practicum.evm;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.exploreWithMe.ViewStatsDto;
+import ru.practicum.ewm.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

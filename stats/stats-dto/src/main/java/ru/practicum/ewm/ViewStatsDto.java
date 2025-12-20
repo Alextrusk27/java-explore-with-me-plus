@@ -1,4 +1,4 @@
-package ru.practicum.exploreWithMe;
+package ru.practicum.ewm;
 
 public record ViewStatsDto(
         String app,

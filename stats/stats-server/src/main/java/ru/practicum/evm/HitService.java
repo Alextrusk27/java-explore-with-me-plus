@@ -2,8 +2,9 @@ package ru.practicum.evm;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.exploreWithMe.EndpointHitDto;
-import ru.practicum.exploreWithMe.ViewStatsDto;
+import ru.practicum.ewm.EndpointHitDto;
+import ru.practicum.ewm.ViewStatsDto;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
