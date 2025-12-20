@@ -18,7 +18,7 @@ services:
   stats-server:
     build: stats/stats-server
     ports:
-      - "9090:8080"
+      - "9090:9090"
     depends_on:
       stats-db:
         condition: service_healthy
