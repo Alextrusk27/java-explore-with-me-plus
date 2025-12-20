@@ -10,7 +10,7 @@ services:
 
   stats-db:
     image: postgres:16.1
-    container_name: stats-db-postgres
+    container_name: stats-server-stats-db-1
     ports:
       - "6542:5432"
     environment:
