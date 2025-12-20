@@ -34,5 +34,4 @@ public class HitService {
         hit.setTimestamp(dto.timestamp());
         return repository.save(hit);
     }
-
 }
