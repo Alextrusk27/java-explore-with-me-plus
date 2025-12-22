@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 @Builder
 public class Hit {
 
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,13 +22,5 @@ public class Hit {
 
     public Hit() {
 
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 }
