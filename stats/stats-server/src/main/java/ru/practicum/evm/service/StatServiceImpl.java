@@ -1,6 +1,5 @@
 package ru.practicum.evm.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.evm.exception.ValidationException;
 import ru.practicum.evm.repository.StatRepository;
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Slf4j
 public class StatServiceImpl implements StatService {
 
     private final StatRepository repository;
@@ -24,7 +22,6 @@ public class StatServiceImpl implements StatService {
                                        LocalDateTime end,
                                        List<String> uris,
                                        boolean unique) {
-        log.info("получим запрос getStats: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         if (start.isAfter(end)) {
             throw new ValidationException("Начало не может быть позже конца");
         }
@@ -43,7 +40,6 @@ public class StatServiceImpl implements StatService {
                         ((Number) row[2]).longValue()
                 ))
                 .toList();
-        log.info("результат запроса: {}", result);
         return result;
     }
 }

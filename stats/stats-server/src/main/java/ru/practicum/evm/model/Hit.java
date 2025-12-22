@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "hit")
-@NoArgsConstructor
 @AllArgsConstructor
 public class Hit {
 
@@ -27,5 +26,16 @@ public class Hit {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Hit() {
+    }
+
+    public Hit(Long id, String app, String uri, String ip, LocalDateTime timestamp) {
+        this.id = id;
+        this.app = app;
+        this.uri = uri;
+        this.ip = ip;
+        this.timestamp = timestamp;
     }
 }
