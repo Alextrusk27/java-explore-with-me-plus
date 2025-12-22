@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 public class JacksonConfig {
     public static final String DATE_TIME = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE = "yyyy-MM-dd";
+
     @Bean
     public ObjectMapper objectMapper() {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
@@ -27,16 +28,13 @@ public class JacksonConfig {
                 new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DATE_TIME)));
         javaTimeModule.addDeserializer(LocalDateTime.class,
                 new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(DATE_TIME)));
-
         javaTimeModule.addSerializer(LocalDate.class,
                 new LocalDateSerializer(DateTimeFormatter.ofPattern(DATE)));
         javaTimeModule.addDeserializer(LocalDate.class,
                 new LocalDateDeserializer(DateTimeFormatter.ofPattern(DATE)));
-
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(javaTimeModule);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
         return mapper;
     }
 }
