@@ -12,7 +12,7 @@ services:
     image: postgres:16.1
     container_name: stats-db-postgres
     ports:
-      - "6542:5432"
+      - "6542:5439"
     environment:
       - POSTGRES_DB=stats
       - POSTGRES_USER=stats
