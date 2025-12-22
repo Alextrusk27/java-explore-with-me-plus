@@ -20,6 +20,7 @@ public interface StatRepository extends JpaRepository<Hit, Long> {
                 GROUP BY e.app, e.uri
                 ORDER BY COUNT(e) DESC
             """)
+
     List<ViewStatsDto> getStats(LocalDateTime start,
                                 LocalDateTime end,
                                 List<String> uris);
