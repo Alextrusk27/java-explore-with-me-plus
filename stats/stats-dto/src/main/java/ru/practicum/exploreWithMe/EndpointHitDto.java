@@ -2,13 +2,9 @@ package ru.practicum.exploreWithMe;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
-import lombok.Builder;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Data
-@Builder
 public class EndpointHitDto {
     @NotBlank(message = "App не может быть пустым")
     @Size(max = 255, message = "App слишком длинный")
@@ -29,4 +25,20 @@ public class EndpointHitDto {
     @PastOrPresent(message = "Timestamp не может быть в будущем")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime timestamp;
+
+    public String getApp() {
+        return app;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

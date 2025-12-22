@@ -6,14 +6,12 @@ import ru.practicum.exploreWithMe.EndpointHitDto;
 public class HitMapper {
 
     public static Hit toEntity(EndpointHitDto dto) {
-        if (dto == null)
-            return null;
-
-        return Hit.builder()
-                .app(dto.getApp())
-                .uri(dto.getUri())
-                .ip(dto.getIp())
-                .timestamp(dto.getTimestamp())
-                .build();
+        return new Hit(
+                null,
+                dto.getApp(),
+                dto.getUri(),
+                dto.getIp(),
+                dto.getTimestamp()
+        );
     }
 }

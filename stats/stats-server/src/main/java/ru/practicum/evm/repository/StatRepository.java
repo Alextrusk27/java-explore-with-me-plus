@@ -12,30 +12,29 @@ import java.util.List;
 @Repository
 public interface StatRepository extends JpaRepository<Hit, Long> {
 
-    @Query("""
-                SELECT new ru.practicum.exploreWithMe.ViewStatsDto(e.app, e.uri, COUNT(e))
-                FROM Hit e
+    @Query(value = """
+                SELECT e.app, e.uri, COUNT(e.id) as hits
+                FROM hit e
                 WHERE e.timestamp BETWEEN :start AND :end
-                  AND (:uris IS NULL OR e.uri IN :uris)
+                  AND (:pattern IS NULL OR e.uri LIKE :pattern)
                 GROUP BY e.app, e.uri
-                ORDER BY COUNT(e) DESC
-            """)
+                ORDER BY hits DESC
+            """, nativeQuery = true)
+    List<Object[]> getStatsWithPatternNative(LocalDateTime start,
+                                             LocalDateTime end,
+                                             String pattern);
 
-    List<ViewStatsDto> getStats(LocalDateTime start,
-                                LocalDateTime end,
-                                List<String> uris);
-
-    @Query("""
-                SELECT new ru.practicum.exploreWithMe.ViewStatsDto(e.app, e.uri, COUNT(DISTINCT e.ip))
-                FROM Hit e
+    @Query(value = """
+                SELECT e.app, e.uri, COUNT(DISTINCT e.ip) as hits
+                FROM hit e
                 WHERE e.timestamp BETWEEN :start AND :end
-                  AND (:uris IS NULL OR e.uri IN :uris)
+                  AND (:pattern IS NULL OR e.uri LIKE :pattern)
                 GROUP BY e.app, e.uri
-                ORDER BY COUNT(DISTINCT e.ip) DESC
-            """)
-    List<ViewStatsDto> getStatsUnique(LocalDateTime start,
-                                      LocalDateTime end,
-                                      List<String> uris);
+                ORDER BY hits DESC
+            """, nativeQuery = true)
+    List<Object[]> getStatsUniqueWithPatternNative(LocalDateTime start,
+                                                   LocalDateTime end,
+                                                   String pattern);
 
     @Query("""
                 SELECT new ru.practicum.exploreWithMe.ViewStatsDto(e.app, e.uri, COUNT(e))
