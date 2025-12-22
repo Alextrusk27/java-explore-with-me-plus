@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "hit")
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Hit {
 
     @Setter
@@ -20,7 +22,4 @@ public class Hit {
     private String ip;
     private LocalDateTime timestamp;
 
-    public Hit() {
-
-    }
 }
