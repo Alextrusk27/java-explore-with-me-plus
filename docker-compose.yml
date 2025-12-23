@@ -6,11 +6,16 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - stats-db
+      stats-db:
+        condition: service_healthy
+    environment:
+      - SPRING_SQL_INIT_MODE=always
 
   stats-db:
     image: postgres:16.1
     container_name: stats-db-postgres
+    volumes:
+      - ./stats/stats-server/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     ports:
       - "6542:5432"
     environment:
