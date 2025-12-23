@@ -5,25 +5,40 @@ import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
 
-public record EndpointHitDto(
-        @NotBlank(message = "App не может быть пустым")
-        @Size(max = 255, message = "App слишком длинный")
-        String app,
+public class EndpointHitDto {
+    @NotBlank(message = "App не может быть пустым")
+    @Size(max = 255, message = "App слишком длинный")
+    String app;
 
-        @NotBlank(message = "Uri не может быть пустым")
-        @Size(max = 512, message = "Uri слишком длинный")
-        String uri,
+    @NotBlank(message = "Uri не может быть пустым")
+    @Size(max = 512, message = "Uri слишком длинный")
+    String uri;
 
-        @NotBlank(message = "IP не может быть пустым")
-        @Pattern(
-                regexp = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$",
-                message = "Некорректный формат IP-адреса"
-        )
-        String ip,
+    @NotBlank(message = "IP не может быть пустым")
+    @Pattern(
+            regexp = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$",
+            message = "Некорректный формат IP-адреса"
+    )
+    String ip;
 
-        @NotNull(message = "Timestamp не может быть null")
-        @PastOrPresent(message = "Timestamp не может быть в будущем")
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime timestamp
-) {
+    @NotNull(message = "Timestamp не может быть null")
+    @PastOrPresent(message = "Timestamp не может быть в будущем")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime timestamp;
+
+    public String getApp() {
+        return app;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }
