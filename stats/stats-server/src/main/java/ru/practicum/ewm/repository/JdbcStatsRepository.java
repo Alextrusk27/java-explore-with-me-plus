@@ -54,10 +54,8 @@ public class JdbcStatsRepository {
                     """);
         }
         if (!uris.isEmpty()) {
-            if (!(uris.size() == 1 && uris.getFirst().equals("/events"))) {
-                params.addValue("uris", uris);
-                sqlBuilder.append(" AND uri IN (:uris)");
-            }
+            params.addValue("uris", uris);
+            sqlBuilder.append(" AND uri IN (:uris)");
         }
         sqlBuilder.append(" GROUP BY app, uri");
         sqlBuilder.append(" ORDER BY hits DESC");
