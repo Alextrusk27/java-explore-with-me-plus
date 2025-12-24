@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class Hit {
-    Long id;
-    App app;
-    String uri;
-    String ip;
-    LocalDateTime timestamp;
+    private Long id;
+    private App app;
+    private String uri;
+    private String ip;
+    private LocalDateTime timestamp;
 }

@@ -1,5 +1,6 @@
 package ru.practicum.ewm.repository;
 
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -33,33 +34,29 @@ public class JdbcStatsRepository {
         return hit;
     }
 
-    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, @Nullable List<String> uris,
+                                       boolean unique) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("start", start)
                 .addValue("end", end);
 
-        StringBuilder sqlBuilder = new StringBuilder();
+        String counting = unique ? "COUNT(DISTINCT ip)" : "COUNT(*)";
+        String checkedUris;
 
-        if (unique) {
-            sqlBuilder.append("""
-                    SELECT app, uri, COUNT(DISTINCT ip) AS hits
-                    FROM hits
-                    WHERE timestamp BETWEEN :start AND :end
-                    """);
+        if (uris == null || uris.isEmpty()) {
+            checkedUris = "";
         } else {
-            sqlBuilder.append("""
-                    SELECT app, uri, COUNT(*) AS hits
-                    FROM hits
-                    WHERE timestamp BETWEEN :start AND :end
-                    """);
-        }
-        if (!uris.isEmpty()) {
+            checkedUris = " AND uri IN (:uris)";
             params.addValue("uris", uris);
-            sqlBuilder.append(" AND uri IN (:uris)");
         }
-        sqlBuilder.append(" GROUP BY app, uri");
-        sqlBuilder.append(" ORDER BY hits DESC");
-        String sql = sqlBuilder.toString();
+
+        String sql = """
+                SELECT app, uri, %s AS hits
+                FROM hits
+                WHERE timestamp BETWEEN :start AND :end%s
+                GROUP BY app, uri
+                ORDER BY hits DESC
+                """.formatted(counting, checkedUris);
 
         return jdbc.query(sql, params, (rs, rowNum) ->
                 new ViewStatsDto(
