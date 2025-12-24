@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
+import ru.practicum.ewm.user.exception.ConflictException;
 import ru.practicum.ewm.user.exception.NotFoundException;
 import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
@@ -42,6 +43,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto createUser(NewUserRequest request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new ConflictException("Пользователь с email " + request.email() + " уже существует");
+        }
+
         User user = userMapper.toEntity(request);
         User saved = userRepository.save(user);
         return userMapper.toDto(saved);
