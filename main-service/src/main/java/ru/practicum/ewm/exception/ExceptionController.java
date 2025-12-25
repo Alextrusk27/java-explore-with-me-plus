@@ -55,6 +55,14 @@ public class ExceptionController {
 
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflictException(final ConflictException e) {
+        log.info("Conflict exception: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of(HttpStatus.CONFLICT, "Validation Failed",
+                        Collections.singletonList(e.getMessage()), stackTraceToString(e)));
+    }
+
     @ExceptionHandler
     public ResponseEntity<ApiError> handleException(final Exception e) {
         log.info("Exception: {}", e.getMessage());
