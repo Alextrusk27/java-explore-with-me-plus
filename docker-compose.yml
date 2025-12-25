@@ -32,6 +32,9 @@ services:
     build: main-service
     image: evm-main-service
     container_name: main-service
+    depends_on:
+      ewm-db:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:

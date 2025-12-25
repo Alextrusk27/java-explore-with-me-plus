@@ -6,10 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.exception.ConflictException;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
-import ru.practicum.ewm.user.exception.ConflictException;
-import ru.practicum.ewm.user.exception.NotFoundException;
+import ru.practicum.ewm.user.dto.UserSearchRequest;
 import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
@@ -25,14 +26,14 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
+    public List<UserDto> getUsers(UserSearchRequest request) {
+        Pageable pageable = PageRequest.of(request.from() / request.size(), request.size());
 
         Page<User> page;
-        if (ids == null || ids.isEmpty()) {
+        if (request.ids() == null || request.ids().isEmpty()) {
             page = userRepository.findAll(pageable);
         } else {
-            page = userRepository.findAllByIdIn(ids, pageable);
+            page = userRepository.findAllByIdIn(request.ids(), pageable);
         }
 
         return page.stream()

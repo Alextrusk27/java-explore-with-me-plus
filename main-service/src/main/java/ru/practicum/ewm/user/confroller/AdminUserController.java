@@ -1,14 +1,13 @@
 package ru.practicum.ewm.user.confroller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
+import ru.practicum.ewm.user.dto.UserSearchRequest;
 import ru.practicum.ewm.user.service.UserService;
 
 import java.util.List;
@@ -24,10 +23,16 @@ public class AdminUserController {
     @GetMapping
     public List<UserDto> getUsers(
             @RequestParam(required = false) List<Long> ids,
-            @RequestParam(defaultValue = "0") @Min(0) int from,
-            @RequestParam(defaultValue = "10") @Positive int size
-    ) {
-        return userService.getUsers(ids, from, size);
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size) {
+
+        UserSearchRequest request = UserSearchRequest.builder()
+                .ids(ids)
+                .from(from)
+                .size(size)
+                .build();
+
+        return userService.getUsers(request);
     }
 
     @PostMapping
