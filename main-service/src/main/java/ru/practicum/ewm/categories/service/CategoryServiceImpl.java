@@ -23,7 +23,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
-        if (repository.existsByName(newCategoryDto.getName())){
+        if (repository.existsByName(newCategoryDto.getName())) {
             throw new ConflictException("Категория с таким именем " + newCategoryDto.getName() + " уже существует");
         }
         return CategoryMapper.toCategoryDto(repository.save(CategoryMapper.toCategory(newCategoryDto)));
