@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.ewm.sharing.constants.ApiPaths;
+import ru.practicum.ewm.sharing.ApiPaths;
 
 @RestController
 @RequestMapping(ApiPaths.Public.EVENTS)

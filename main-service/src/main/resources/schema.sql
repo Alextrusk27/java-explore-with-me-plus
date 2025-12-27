@@ -15,7 +15,7 @@ CREATE TABLE events (
   title              VARCHAR(100)      NOT NULL,
   annotation         VARCHAR(500)      NOT NULL,
   description        VARCHAR(2000)     NOT NULL,
-  event_date         TIMESTAMP         NOT NULL,
+  date               TIMESTAMP         NOT NULL,
   state              VARCHAR(20)       NOT NULL DEFAULT 'PENDING',
   paid               BOOL              NOT NULL,
   participant_limit  INT               NOT NULL,
@@ -27,17 +27,8 @@ CREATE TABLE events (
   published_on       TIMESTAMP,
   CONSTRAINT events_category_id_fk     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
   CONSTRAINT events_initiator_id_fk    FOREIGN KEY (initiator_id)   REFERENCES users(id)      ON DELETE RESTRICT,
-  CONSTRAINT events_date_is_future     CHECK (event_date  > CURRENT_DATE),
+  CONSTRAINT events_date_is_future     CHECK (date > CURRENT_DATE),
   CONSTRAINT events_state_check        CHECK (state IN ('PUBLISHED', 'PENDING', 'CANCELED')),
   CONSTRAINT events_published_on_check CHECK ((state = 'PUBLISHED' AND published_on IS NOT NULL) OR
                                               (state != 'PUBLISHED'))
 );
-
-create table if not exists participation_requests
-(
-    id bigint generated always as identity primary key,
-    created timestamp without time zone not null,
-    event_id bigint not null references events (id) on delete cascade,
-    user_id bigint not null references users (id) on delete cascade,
-    status varchar not null
-    );
