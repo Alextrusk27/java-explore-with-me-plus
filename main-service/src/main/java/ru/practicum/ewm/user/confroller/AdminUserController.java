@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.sharing.ApiPaths;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.dto.UserSearchRequest;
@@ -13,7 +14,7 @@ import ru.practicum.ewm.user.service.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping(ApiPaths.Admin.USERS)
 @RequiredArgsConstructor
 @Validated
 public class AdminUserController {

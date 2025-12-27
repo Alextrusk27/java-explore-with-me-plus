@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="StatsServerApp" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="ru.practicum.ewm.StatsServerApp" />
-    <module name="stats-server" />
-    <option name="PROGRAM_PARAMETERS" value="--spring.profiles.active=local" />
+  <configuration default="false" name="MainServiceDev" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="ru.practicum.ewm.MainService" />
+    <module name="main-service" />
+    <option name="PROGRAM_PARAMETERS" value="--spring.profiles.active=dev" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="ru.practicum.ewm.*" />
