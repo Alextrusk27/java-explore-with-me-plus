@@ -9,6 +9,7 @@ import ru.practicum.ewm.categories.dto.NewCategoryDto;
 import ru.practicum.ewm.categories.mapper.CategoryMapper;
 import ru.practicum.ewm.categories.model.Category;
 import ru.practicum.ewm.categories.repository.CategoryRepository;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.List;
@@ -16,12 +17,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository repository;
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
+        if (repository.existsByName(newCategoryDto.getName())){
+            throw new ConflictException("Категория с таким именем " + newCategoryDto.getName() + " уже существует");
+        }
         return CategoryMapper.toCategoryDto(repository.save(CategoryMapper.toCategory(newCategoryDto)));
     }
 
@@ -38,6 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void deleteCategory(Long id) {
         if (!repository.existsById(id)) {
             throw new NotFoundException("Category with id = " + id + " was not found");

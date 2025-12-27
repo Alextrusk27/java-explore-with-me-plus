@@ -20,12 +20,12 @@ public class AdminCategoryController {
         return service.addCategory(newCategoryDto);
     }
 
-    @PostMapping("/{catId}")
+    @PutMapping("/{catId}")
     public CategoryDto updateCategory(@PathVariable Long catId, @RequestBody @Valid CategoryDto categoryDto) {
         return service.updateCategory(catId, categoryDto);
     }
 
-    @PostMapping("/{catId}")
+    @DeleteMapping("/{catId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable Long catId) {
         service.deleteCategory(catId);
