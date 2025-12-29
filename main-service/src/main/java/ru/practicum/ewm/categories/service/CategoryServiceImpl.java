@@ -17,32 +17,34 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository repository;
+    private final CategoryMapper categoryMapper;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
         if (repository.existsByName(newCategoryDto.getName())) {
             throw new ConflictException("Категория с таким именем " + newCategoryDto.getName() + " уже существует");
         }
-        return CategoryMapper.toCategoryDto(repository.save(CategoryMapper.toCategory(newCategoryDto)));
+        return categoryMapper.toCategoryDto(repository.save(categoryMapper.toCategory(newCategoryDto)));
     }
 
     @Override
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
         Category category = getCategory(id);
         category.setName(categoryDto.getName());
-        return CategoryMapper.toCategoryDto(repository.save(category));
+        return categoryMapper.toCategoryDto(repository.save(category));
     }
 
     @Override
     public CategoryDto getCategoryById(Long id) {
-        return CategoryMapper.toCategoryDto(getCategory(id));
+        return categoryMapper.toCategoryDto(getCategory(id));
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public void deleteCategory(Long id) {
         if (!repository.existsById(id)) {
             throw new NotFoundException("Category with id = " + id + " was not found");
@@ -59,6 +61,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         return repository.findAll(PageRequest.of(from / size, size)).stream()
-                .map(CategoryMapper::toCategoryDto).collect(Collectors.toList());
+                .map(categoryMapper::toCategoryDto).collect(Collectors.toList());
     }
 }

@@ -1,25 +1,17 @@
 package ru.practicum.ewm.categories.mapper;
 
 import lombok.experimental.UtilityClass;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 import ru.practicum.ewm.categories.dto.CategoryDto;
 import ru.practicum.ewm.categories.dto.NewCategoryDto;
 import ru.practicum.ewm.categories.model.Category;
 
-@UtilityClass
-public class CategoryMapper {
-    public Category toCategory(NewCategoryDto newCategoryDto) {
-        return new Category(newCategoryDto.getName());
-    }
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface CategoryMapper {
+    Category toCategory(NewCategoryDto newCategoryDto);
 
-    public Category toCategory(CategoryDto categoryDto) {
-        return new Category(
-                categoryDto.getId(),
-                categoryDto.getName());
-    }
+    Category toCategory(CategoryDto categoryDto);
 
-    public CategoryDto toCategoryDto(Category category) {
-        return new CategoryDto(
-                category.getId(),
-                category.getName());
-    }
+    CategoryDto toCategoryDto(Category category);
 }
