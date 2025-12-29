@@ -1,6 +1,5 @@
 package ru.practicum.ewm.categories.mapper;
 
-import lombok.experimental.UtilityClass;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import ru.practicum.ewm.categories.dto.CategoryDto;
