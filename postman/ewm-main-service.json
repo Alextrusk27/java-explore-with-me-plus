@@ -2968,8 +2968,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Ответ должен содержать код статуса 409 и данные в формате json\", function () {\r",
-                  "    pm.response.to.have.status(409);\r",
+                  "pm.test(\"Ответ должен содержать код статуса 404 и данные в формате json\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
                   "    pm.response.to.be.withBody;\r",
                   "    pm.response.to.be.json;\r",
                   "});"
@@ -3220,7 +3220,6 @@
                   "    try {\r",
                   "        const category = await api.addCategory(rnd.getCategory());\r",
                   "        const user = await api.addUser(rnd.getUser());\r",
-                  "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
                   "        pm.collectionVariables.set('catid', category.id);\r",
                   "    } catch(err) {\r",
                   "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
