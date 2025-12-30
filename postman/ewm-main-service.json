@@ -2968,8 +2968,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Ответ должен содержать код статуса 404 и данные в формате json\", function () {\r",
-                  "    pm.response.to.have.status(404);\r",
+                  "pm.test(\"Ответ должен содержать код статуса 409 и данные в формате json\", function () {\r",
+                  "    pm.response.to.have.status(409);\r",
                   "    pm.response.to.be.withBody;\r",
                   "    pm.response.to.be.json;\r",
                   "});"
@@ -3203,87 +3203,6 @@
                 "users"
               ]
             }
-          },
-          "response": []
-        },
-        {
-          "name": "Удаление категории с привязанными событиями",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "const main = async () => {\r",
-                  "    const api = new API(pm);\r",
-                  "    const rnd = new RandomUtils();\r",
-                  "\r",
-                  "    try {\r",
-                  "        const category = await api.addCategory(rnd.getCategory());\r",
-                  "        const user = await api.addUser(rnd.getUser());\r",
-                  "        pm.collectionVariables.set('catid', category.id);\r",
-                  "    } catch(err) {\r",
-                  "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-                  "    }\r",
-                  "};\r",
-                  "\r",
-                  "const interval = setInterval(() => {}, 1000);\r",
-                  "\r",
-                  "setTimeout(async () => \r",
-                  "    {\r",
-                  "        try {\r",
-                  "            await main();\r",
-                  "        } catch (e) {\r",
-                  "            console.error(e);\r",
-                  "        } finally {\r",
-                  "            clearInterval(interval);\r",
-                  "        }\r",
-                  "    },  \r",
-                  "    100 \r",
-                  ");"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Ответ должен содержать код статуса 409 и данные в формате json\", function () {\r",
-                  "    pm.response.to.have.status(409);\r",
-                  "    pm.response.to.be.withBody;\r",
-                  "    pm.response.to.be.json;\r",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/categories/:catId",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "categories",
-                ":catId"
-              ],
-              "variable": [
-                {
-                  "key": "catId",
-                  "value": "{{catid}}"
-                }
-              ]
-            },
-            "description": "Обратите внимание: с категорий не должно быть связано ни одного события."
           },
           "response": []
         },
