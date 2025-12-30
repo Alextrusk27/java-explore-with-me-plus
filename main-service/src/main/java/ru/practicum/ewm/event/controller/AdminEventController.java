@@ -3,7 +3,7 @@ package ru.practicum.ewm.event.controller;
 import jakarta.validation.constraints.Positive;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.sharing.ApiPaths;
+import ru.practicum.ewm.sharing.constants.ApiPaths;
 
 @RestController
 @RequestMapping(ApiPaths.Admin.EVENTS)

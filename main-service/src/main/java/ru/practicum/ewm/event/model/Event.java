@@ -34,7 +34,7 @@ public class Event {
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDateTime eventDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

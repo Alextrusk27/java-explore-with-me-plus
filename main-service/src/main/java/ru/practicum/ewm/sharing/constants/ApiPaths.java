@@ -1,4 +1,4 @@
-package ru.practicum.ewm.sharing;
+package ru.practicum.ewm.sharing.constants;
 
 import lombok.experimental.UtilityClass;
 

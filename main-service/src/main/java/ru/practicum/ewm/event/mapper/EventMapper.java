@@ -1,13 +1,19 @@
 package ru.practicum.ewm.event.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
+import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.event.dto.EventDto;
+import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
+import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.user.mapper.UserMapper;
 
-@Mapper(uses = {LocationMapper.class, UserMapper.class})
+@Mapper(uses = {
+        LocationMapper.class,
+        UserMapper.class,
+        CategoryMapper.class
+})
 public interface EventMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -16,10 +22,20 @@ public interface EventMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "publishedOn", ignore = true)
     @Mapping(target = "state", constant = "PENDING")
-    @Mapping(target = "date", source = "eventDate")
     @Mapping(target = "location", source = "location")
-    Event toEvent(CreateEventDto createRequest);
+    Event toEntity(CreateEventDto dto);
 
-    @Mapping(target = "eventDate", source = "date")
-    EventDto toEventDto(Event event);
+    EventDto toDto(Event event);
+
+    @Mapping(target = "views", source = "views")
+    @Mapping(target = "confirmedRequests", source = "confirmedRequests")
+    EventDtoExtended toShortDto(Event event, Long views, Long confirmedRequests);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdOn", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "publishedOn", ignore = true)
+    @Mapping(target = "initiator", ignore = true)
+    void updateEntity(UpdateEventDto dto, @MappingTarget Event event);
 }

@@ -1,23 +1,19 @@
 package ru.practicum.ewm.category.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.ewm.category.dto.CategoryDto;
+import ru.practicum.ewm.category.dto.CategoryInfo;
 import ru.practicum.ewm.category.dto.NewCategoryDto;
 import ru.practicum.ewm.category.model.Category;
 
-public class CategoryMapper {
-    public static Category toCategory(NewCategoryDto newCategoryDto) {
-        return new Category(newCategoryDto.getName());
-    }
+@Mapper
+public interface CategoryMapper {
 
-    public static Category toCategory(CategoryDto categoryDto) {
-        return new Category(
-                categoryDto.id(),
-                categoryDto.name());
-    }
+    @Mapping(target = "id", ignore = true)
+    Category toEntity(NewCategoryDto dto);
 
-    public static CategoryDto toCategoryDto(Category category) {
-        return new CategoryDto(
-                category.getId(),
-                category.getName());
-    }
+    CategoryDto toDto(Category category);
+
+    CategoryDto toDto(CategoryInfo projection);
 }
