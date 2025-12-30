@@ -63,8 +63,8 @@ public class ExceptionController {
                         Collections.singletonList(e.getMessage()), stackTraceToString(e)));
     }
 
-    @ExceptionHandler(NotFoundCategoryException.class)
-    public ResponseEntity<ApiError> handleNotFoundCategoryException(final NotFoundCategoryException e) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFoundException(final NotFoundException e) {
         log.info("NotFound exception: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiError.of(HttpStatus.NOT_FOUND, "Validation Failed",

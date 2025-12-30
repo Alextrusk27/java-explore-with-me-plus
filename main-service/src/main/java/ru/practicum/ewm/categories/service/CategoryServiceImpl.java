@@ -50,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto getCategoryById(Long id) {
         if (!repository.existsById(id)) {
-            throw new NotFoundCategoryException("Category with id = " + id + " was not found");
+            throw new NotFoundException("Category with id = " + id + " was not found");
         }
         return categoryMapper.toCategoryDto(getCategory(id));
     }
