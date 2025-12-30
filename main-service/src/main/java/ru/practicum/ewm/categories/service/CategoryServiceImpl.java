@@ -10,6 +10,7 @@ import ru.practicum.ewm.categories.mapper.CategoryMapper;
 import ru.practicum.ewm.categories.model.Category;
 import ru.practicum.ewm.categories.repository.CategoryRepository;
 import ru.practicum.ewm.exception.ConflictException;
+import ru.practicum.ewm.exception.NotFoundCategoryException;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto getCategoryById(Long id) {
         if (!repository.existsById(id)) {
-            throw new NotFoundException("Category with id = " + id + " was not found");
+            throw new NotFoundCategoryException("Category with id = " + id + " was not found");
         }
         return categoryMapper.toCategoryDto(getCategory(id));
     }
