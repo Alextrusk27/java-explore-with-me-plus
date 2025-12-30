@@ -34,13 +34,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
-        if (repository.existsByName(categoryDto.name())) {
-            throw new ConflictException("Категория с таким именем " + categoryDto.name() + " уже существует");
+        if (repository.existsByNameAndIdNot(categoryDto.name(), id)) {
+            throw new ConflictException(
+                    "Категория с таким именем " + categoryDto.name() + " уже существует"
+            );
         }
+
         Category category = getCategory(id);
         category.setName(categoryDto.name());
         return categoryMapper.toCategoryDto(repository.save(category));
     }
+
 
     @Override
     public CategoryDto getCategoryById(Long id) {
