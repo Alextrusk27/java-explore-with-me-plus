@@ -33,9 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
-        if (getCategory(id).equals(categoryMapper.toCategory(categoryDto))) {
-            return categoryMapper.toCategoryDto(repository.save(categoryMapper.toCategory(categoryDto)));
-        } else if (repository.existsByName(categoryDto.name())) {
+        if (repository.existsByName(categoryDto.name())) {
             throw new ConflictException("Категория с таким именем " + categoryDto.name() + " уже существует");
         }
         Category category = getCategory(id);
@@ -45,9 +43,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto getCategoryById(Long id) {
-        if (!repository.existsById(id)) {
-            throw new NotFoundException("Category with id = " + id + " was not found");
-        }
         return categoryMapper.toCategoryDto(getCategory(id));
     }
 
