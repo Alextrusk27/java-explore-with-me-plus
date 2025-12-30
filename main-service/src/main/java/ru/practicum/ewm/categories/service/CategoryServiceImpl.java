@@ -32,6 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
         if (repository.existsByName(categoryDto.name())) {
             throw new ConflictException("Категория с таким именем " + categoryDto.name() + " уже существует");
