@@ -3266,25 +3266,7 @@
                 "key": "Accept",
                 "value": "application/json"
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/admin/categories/:catId",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "categories",
-                ":catId"
-              ],
-              "variable": [
-                {
-                  "key": "catId",
-                  "value": "{{catid}}"
-                }
-              ]
-            },
-            "description": "Обратите внимание: с категорий не должно быть связано ни одного события."
+            ]
           },
           "response": []
         },
