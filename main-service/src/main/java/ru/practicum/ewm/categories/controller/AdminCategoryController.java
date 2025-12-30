@@ -20,7 +20,7 @@ public class AdminCategoryController {
         return service.addCategory(newCategoryDto);
     }
 
-    @PutMapping("/{catId}")
+    @PatchMapping("/{catId}")
     public CategoryDto updateCategory(@PathVariable Long catId, @RequestBody @Valid CategoryDto categoryDto) {
         return service.updateCategory(catId, categoryDto);
     }
