@@ -63,6 +63,14 @@ public class ExceptionController {
                         Collections.singletonList(e.getMessage()), stackTraceToString(e)));
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleNotFoundException(final NotFoundException e) {
+        log.info("NotFound exception: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND, "Validation Failed",
+                        Collections.singletonList(e.getMessage()), stackTraceToString(e)));
+    }
+
     @ExceptionHandler
     public ResponseEntity<ApiError> handleException(final Exception e) {
         log.info("Exception: {}", e.getMessage());
