@@ -1,19 +1,20 @@
-package ru.practicum.ewm.categories.controller;
+package ru.practicum.ewm.category.controller;
 
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.categories.dto.CategoryDto;
-import ru.practicum.ewm.categories.service.CategoryService;
+import ru.practicum.ewm.category.dto.CategoryDto;
+import ru.practicum.ewm.category.service.CategoryService;
+import ru.practicum.ewm.sharing.constants.ApiPaths;
 
 import java.util.List;
 
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/categories")
+@RequestMapping(ApiPaths.Public.CATEGORIES)
 public class PublicCategoryController {
     private final CategoryService service;
 

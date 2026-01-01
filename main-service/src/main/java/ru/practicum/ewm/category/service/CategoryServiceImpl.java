@@ -1,14 +1,14 @@
-package ru.practicum.ewm.categories.service;
+package ru.practicum.ewm.category.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.categories.dto.CategoryDto;
-import ru.practicum.ewm.categories.dto.NewCategoryDto;
-import ru.practicum.ewm.categories.mapper.CategoryMapper;
-import ru.practicum.ewm.categories.model.Category;
-import ru.practicum.ewm.categories.repository.CategoryRepository;
+import ru.practicum.ewm.category.dto.CategoryDto;
+import ru.practicum.ewm.category.dto.NewCategoryDto;
+import ru.practicum.ewm.category.mapper.CategoryMapper;
+import ru.practicum.ewm.category.model.Category;
+import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 
@@ -28,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (repository.existsByName(newCategoryDto.name())) {
             throw new ConflictException("Категория с таким именем " + newCategoryDto.name() + " уже существует");
         }
-        return categoryMapper.toCategoryDto(repository.save(categoryMapper.toCategory(newCategoryDto)));
+        return categoryMapper.toDto(repository.save(categoryMapper.toEntity(newCategoryDto)));
     }
 
     @Override
@@ -42,13 +42,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = getCategory(id);
         category.setName(categoryDto.name());
-        return categoryMapper.toCategoryDto(repository.save(category));
+        return categoryMapper.toDto(repository.save(category));
     }
 
 
     @Override
     public CategoryDto getCategoryById(Long id) {
-        return categoryMapper.toCategoryDto(getCategory(id));
+        return categoryMapper.toDto(getCategory(id));
     }
 
     @Override
@@ -69,6 +69,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         return repository.findAll(PageRequest.of(from / size, size)).stream()
-                .map(categoryMapper::toCategoryDto).collect(Collectors.toList());
+                .map(categoryMapper::toDto).collect(Collectors.toList());
     }
 }
