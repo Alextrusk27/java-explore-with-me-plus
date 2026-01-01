@@ -5,7 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.dto.CategoryDto;
-import ru.practicum.ewm.category.dto.CreateCategoryDto;
+import ru.practicum.ewm.category.dto.NewCategoryDto;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
@@ -24,11 +24,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDto addCategory(CreateCategoryDto createCategoryDto) {
-        if (repository.existsByName(createCategoryDto.name())) {
-            throw new ConflictException("Категория с таким именем " + createCategoryDto.name() + " уже существует");
+    public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
+        if (repository.existsByName(newCategoryDto.name())) {
+            throw new ConflictException("Категория с таким именем " + newCategoryDto.name() + " уже существует");
         }
-        return categoryMapper.toDto(repository.save(categoryMapper.toEntity(createCategoryDto)));
+        return categoryMapper.toDto(repository.save(categoryMapper.toEntity(newCategoryDto)));
     }
 
     @Override
