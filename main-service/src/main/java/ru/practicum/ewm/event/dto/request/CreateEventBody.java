@@ -25,7 +25,7 @@ public record CreateEventBody(
         @AtLeastHoursFromNow(hours = 2)
         LocalDateTime eventDate,
 
-        CreateLocationBody location,
+        LocationBody location,
 
         @NotNull(message = "Paid option required")
         Boolean paid,

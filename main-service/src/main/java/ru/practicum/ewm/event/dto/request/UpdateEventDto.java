@@ -9,7 +9,7 @@ public record UpdateEventDto(
         Long category,
         String description,
         LocalDateTime eventDate,
-        CreateLocationBody location,
+        LocationBody location,
         Boolean paid,
         Integer participantLimit,
         Boolean requestModeration,
@@ -33,5 +33,9 @@ public record UpdateEventDto(
                 userId,
                 eventId
         );
+    }
+
+    public boolean hasStateAction() {
+        return this.stateAction != null;
     }
 }

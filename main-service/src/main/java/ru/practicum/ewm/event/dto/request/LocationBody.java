@@ -5,7 +5,7 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
-public record CreateLocationBody(
+public record LocationBody(
 
         @NotNull(message = "Latitude required")
         @DecimalMin(value = "-90.0", message = "Latitude must be >= -90.0")

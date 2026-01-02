@@ -8,7 +8,7 @@ public record CreateEventDto(
         Long category,
         String description,
         LocalDateTime eventDate,
-        CreateLocationBody location,
+        LocationBody location,
         Boolean paid,
         Integer participantLimit,
         Boolean requestModeration,

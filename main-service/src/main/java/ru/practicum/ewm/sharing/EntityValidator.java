@@ -36,4 +36,7 @@ public class EntityValidator {
             throw new NotFoundException("Event with ID %d not found".formatted(eventId));
         }
     }
+
+    public void validateCompilations(Long userId) {
+    }
 }
