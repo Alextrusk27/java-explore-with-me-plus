@@ -20,6 +20,7 @@ import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.State;
+import ru.practicum.ewm.event.model.StateAction;
 import ru.practicum.ewm.sharing.EntityFinder;
 import ru.practicum.ewm.sharing.EntityValidator;
 import ru.practicum.ewm.user.model.User;
@@ -65,21 +66,13 @@ public class EventServiceImpl implements EventService {
         Event event = finder.findEventOrThrow(dto.eventId());
         mapper.updateEntity(dto, event);
 
-        if (dto.stateAction() != null) {
-            switch (dto.stateAction()) {
-                case PUBLISH_EVENT -> {
-                    if (!event.getState().equals(State.PUBLISHED)) {
-                        event.setState(State.PUBLISHED);
-                        event.setPublishedOn(LocalDateTime.now());
-                    }
-                }
-                case CANCEL_REVIEW -> event.setState(State.CANCELED);
-            }
-        }
-
-        if (dto.category() != null) {
+        if (categoryChanged(event, dto)) {
             Category category = finder.findCategoryOrThrow(dto.category());
             event.setCategory(category);
+        }
+
+        if (dto.hasStateAction()) {
+            applyStateAction(event, dto.stateAction());
         }
 
         Event updatedEvent = repository.save(event);
@@ -102,7 +95,7 @@ public class EventServiceImpl implements EventService {
         validator.validateUserExists(params.userId());
         Event event = finder.findEventOrThrow(params.eventId());
         Long views = getStat(params.eventId());
-        return mapper.toShortDto(event, views, 10L);
+        return mapper.toExtendedDto(event, views, 10L);
     }
 
     private Map<Long, Long> getViewsMap(List<EventInfo> projections) {
@@ -163,5 +156,27 @@ public class EventServiceImpl implements EventService {
     private Long extractIdFromUri(String uri) {
         String[] split = uri.split("/");
         return Long.parseLong(split[1]);
+    }
+
+    private boolean categoryChanged (Event event, UpdateEventDto dto) {
+        Long dtoCategoryId = dto.category();
+        if (dtoCategoryId == null) {
+            return false;
+        }
+        Long eventCategoryId = event.getCategory().getId();
+        return !eventCategoryId.equals(dtoCategoryId);
+    }
+
+    private void applyStateAction(Event event, StateAction stateAction) {
+        switch (stateAction) {
+            case PUBLISH_EVENT -> {
+                if (!event.getState().equals(State.PUBLISHED)) {
+                    event.setState(State.PUBLISHED);
+                    event.setPublishedOn(LocalDateTime.now());
+                }
+            }
+            case CANCEL_REVIEW -> event.setState(State.CANCELED);
+            default -> throw new IllegalArgumentException("Unacceptable state action: " + stateAction);
+        }
     }
 }

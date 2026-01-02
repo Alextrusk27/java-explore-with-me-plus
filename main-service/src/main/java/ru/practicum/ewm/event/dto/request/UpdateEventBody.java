@@ -21,7 +21,7 @@ public record UpdateEventBody(
         @AtLeastHoursFromNow(hours = 2)
         LocalDateTime eventDate,
 
-        CreateLocationBody location,
+        LocationBody location,
 
         Boolean paid,
 

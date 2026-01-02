@@ -9,6 +9,8 @@ import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.user.mapper.UserMapper;
 
+import static ru.practicum.ewm.event.model.State.DEFAULT_STATE;
+
 @Mapper(uses = {
         LocationMapper.class,
         UserMapper.class,
@@ -21,7 +23,7 @@ public interface EventMapper {
     @Mapping(target = "initiator", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "publishedOn", ignore = true)
-    @Mapping(target = "state", constant = "PENDING")
+    @Mapping(target = "state", constant = DEFAULT_STATE)
     @Mapping(target = "location", source = "location")
     Event toEntity(CreateEventDto dto);
 
@@ -29,7 +31,7 @@ public interface EventMapper {
 
     @Mapping(target = "views", source = "views")
     @Mapping(target = "confirmedRequests", source = "confirmedRequests")
-    EventDtoExtended toShortDto(Event event, Long views, Long confirmedRequests);
+    EventDtoExtended toExtendedDto(Event event, Long views, Long confirmedRequests);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
@@ -37,5 +39,7 @@ public interface EventMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "publishedOn", ignore = true)
     @Mapping(target = "initiator", ignore = true)
+    @Mapping(target = "state", ignore = true)
+    @Mapping(target = "location", source = "location")
     void updateEntity(UpdateEventDto dto, @MappingTarget Event event);
 }
