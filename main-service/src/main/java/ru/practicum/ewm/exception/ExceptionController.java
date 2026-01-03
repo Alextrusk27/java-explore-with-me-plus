@@ -41,7 +41,7 @@ public class ExceptionController {
             }
             default -> List.of(e.getMessage());
         };
-        log.info("Spring validation exception: {}", errors);
+        log.warn("Spring validation exception: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiError.of(HttpStatus.BAD_REQUEST, "Spring validation Failed", errors,
                         stackTraceToString(e)));
@@ -49,7 +49,7 @@ public class ExceptionController {
 
     @ExceptionHandler
     public ResponseEntity<ApiError> handleValidationException(final ValidationException e) {
-        log.info("Validation exception: {}", e.getMessage());
+        log.warn("Validation exception: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiError.of(HttpStatus.BAD_REQUEST, "Validation Failed",
                         Collections.singletonList(e.getMessage()), stackTraceToString(e)));
@@ -58,7 +58,7 @@ public class ExceptionController {
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiError> handleConflictException(final ConflictException e) {
-        log.info("Conflict exception: {}", e.getMessage());
+        log.warn("Conflict exception: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of(HttpStatus.CONFLICT, "Validation Failed",
                         Collections.singletonList(e.getMessage()), stackTraceToString(e)));
@@ -66,7 +66,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFoundException(final NotFoundException e) {
-        log.info("NotFound exception: {}", e.getMessage());
+        log.warn("NotFound exception: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiError.of(HttpStatus.NOT_FOUND, "Validation Failed",
                         Collections.singletonList(e.getMessage()), stackTraceToString(e)));
@@ -74,7 +74,7 @@ public class ExceptionController {
 
     @ExceptionHandler
     public ResponseEntity<ApiError> handleException(final Exception e) {
-        log.info("Exception: {}", e.getMessage());
+        log.warn("Exception: {}", e.getMessage());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         return ResponseEntity.status(status)
                 .body(ApiError.of(status, e.getMessage(),
@@ -83,7 +83,7 @@ public class ExceptionController {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiError> handleMissingParams(MissingServletRequestParameterException ex) {
-        log.info("Missing request parameter: {}", ex.getParameterName());
+        log.warn("Missing request parameter: {}", ex.getParameterName());
         String error = "Обязательный параметр '%s' отсутствует".formatted(ex.getParameterName());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiError.of(HttpStatus.BAD_REQUEST, "Validation Failed",

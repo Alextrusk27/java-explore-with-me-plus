@@ -5,9 +5,13 @@ import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.params.EventParams;
 import ru.practicum.ewm.event.dto.params.EventParamsSorted;
+import ru.practicum.ewm.event.dto.params.EventSearchParams;
 import ru.practicum.ewm.event.dto.projection.EventInfo;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
 import ru.practicum.ewm.event.dto.request.UpdateEventDto;
+import ru.practicum.ewm.request.dto.ParticipationRequestDto;
+
+import java.util.List;
 
 public interface EventService {
 
@@ -18,4 +22,6 @@ public interface EventService {
     Page<EventInfo> getEvents(EventParamsSorted params);
 
     EventDtoExtended getEvent(EventParams params);
+
+    List<EventDtoExtended> getEvents(EventSearchParams params);
 }

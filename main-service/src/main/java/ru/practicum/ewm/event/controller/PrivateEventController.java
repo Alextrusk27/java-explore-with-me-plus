@@ -18,7 +18,12 @@ import ru.practicum.ewm.event.dto.request.CreateEventBody;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
 import ru.practicum.ewm.event.dto.request.UpdateEventBody;
 import ru.practicum.ewm.event.dto.request.UpdateEventDto;
-import ru.practicum.ewm.event.service.EventServiceImpl;
+import ru.practicum.ewm.event.service.EventService;
+import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.ewm.request.dto.ParticipationRequestDto;
+import ru.practicum.ewm.request.dto.UpdateRequestStatusBody;
+import ru.practicum.ewm.request.dto.UpdateRequestStatusDto;
+import ru.practicum.ewm.request.service.RequestService;
 import ru.practicum.ewm.sharing.constants.ApiPaths;
 
 import java.util.List;
@@ -29,62 +34,86 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class PrivateEventController {
-    private final EventServiceImpl service;
+    private final EventService eventService;
+    private final RequestService requestService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDto createEvent(
+    public EventDto create(
             @PathVariable @Positive Long userId,
             @RequestBody @Valid CreateEventBody body) {
-        log.debug("Create event request: {} for user ID {}", body, userId);
+
+        log.info("PRIVATE: Create EVENT request: {} for user ID {}", body, userId);
         CreateEventDto dto = CreateEventDto.of(body, userId);
-        EventDto result = service.createEvent(dto);
-        log.debug("Created event ID {} for user ID {}", result.id(), userId);
+        EventDto result = eventService.createEvent(dto);
+        log.info("PRIVATE: Created EVENT ID {} for user ID {}", result.id(), userId);
         return result;
     }
 
     @GetMapping
-    public List<EventInfo> getEvents(
+    public List<EventInfo> get(
             @PathVariable @Positive Long userId,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.debug("Get events for user ID {} with params: from={}, size={}", userId, from, size);
+
+        log.info("PRIVATE: Get EVENTS for user ID {} with params: from={}, size={}", userId, from, size);
         EventParamsSorted params = EventParamsSorted.of(userId, from, size);
-        Page<EventInfo> result = service.getEvents(params);
-        log.debug("Found {} events for user ID {}", result.getNumberOfElements(), userId);
+        Page<EventInfo> result = eventService.getEvents(params);
+        log.info("PRIVATE: Found {} EVENTS for user ID {}", result.getNumberOfElements(), userId);
         return result.getContent();
     }
 
     @GetMapping("/{eventId}")
-    public EventDtoExtended getEvent(@PathVariable @Positive Long userId,
-                                     @PathVariable @Positive Long eventId) {
-        log.debug("Get event ID {} for user ID {}", eventId, userId);
+    public EventDtoExtended get(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId) {
+
+        log.info("PRIVATE: Get EVENT ID {} for user ID {}", eventId, userId);
         EventParams params = EventParams.of(userId, eventId);
-        EventDtoExtended result = service.getEvent(params);
-        log.debug("Found event ID {} for user ID {}", eventId, userId);
+        EventDtoExtended result = eventService.getEvent(params);
+        log.info("PRIVATE: Found EVENT ID {} for user ID {}", eventId, userId);
         return result;
     }
 
     @PatchMapping("/{eventId}")
-    public EventDto updateEvent(@PathVariable @Positive Long userId,
-                                @PathVariable @Positive Long eventId,
-                                @RequestBody @Valid UpdateEventBody body) {
-        log.debug("Update event ID {} for user ID {}", eventId, userId);
+    public EventDto update(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId,
+            @RequestBody @Valid UpdateEventBody body) {
+
+        log.info("PRIVATE: Update EVENT ID {} for user ID {}", eventId, userId);
         UpdateEventDto dto = UpdateEventDto.of(body, userId, eventId);
-        EventDto result = service.updateEvent(dto);
-        log.debug("Updated event ID {} for user ID {}", eventId, userId);
+        EventDto result = eventService.updateEvent(dto);
+        log.info("PRIVATE: Updated EVENT ID {} for user ID {}", eventId, userId);
         return result;
     }
 
     @GetMapping("/{eventId}/requests")
-    public Object getEventRequestsByUser(@PathVariable @Positive Long userId,
-                                         @PathVariable @Positive Long eventId) {
-        return null;
+    public List<ParticipationRequestDto> getEventRequests(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId) {
+
+        log.info("PRIVATE: Get Participation REQUESTS in EVENT with Id {} for user with Id {}", eventId, userId);
+        EventParams params = EventParams.of(userId, eventId);
+        Page<ParticipationRequestDto> page = requestService.getEventRequests(params);
+        List<ParticipationRequestDto> result = page.getContent();
+        log.info("PRIVATE: Found {} Participation REQUESTS in EVENT with Id {} for user with Id {}",
+                result.size(), eventId, userId);
+        return result;
     }
 
     @PatchMapping("/{eventId}/requests")
-    public Object updateEventRequestsByUser(@PathVariable @Positive Long userId,
-                                            @PathVariable @Positive Long eventId) {
-        return null;
+    public EventRequestStatusUpdateResult updateEventRequests(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId,
+            @RequestBody @Valid UpdateRequestStatusBody body) {
+
+        log.info("PRIVATE: Update REQUESTS with Ids {} in EVENT with Id {} for user with Id {}. Status: {}",
+                body.requestIds(), eventId, userId,  body.status());
+        UpdateRequestStatusDto dto = UpdateRequestStatusDto.of(body, userId, eventId);
+        EventRequestStatusUpdateResult result = requestService.updateEventRequestStatus(dto);
+        log.info("PRIVATE: REQUESTS updated. Status CONFIRMED {} requests. Status REJECTED {} requests",
+                result.confirmedRequests().size(), result.rejectedRequests().size());
+        return result;
     }
 }
