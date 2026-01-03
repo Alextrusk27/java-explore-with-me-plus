@@ -21,6 +21,8 @@ import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.State;
 import ru.practicum.ewm.event.model.StateAction;
+import ru.practicum.ewm.exception.AccessException;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.sharing.EntityFinder;
 import ru.practicum.ewm.sharing.EntityValidator;
 import ru.practicum.ewm.user.model.User;
@@ -61,9 +63,17 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventDto updateEvent(UpdateEventDto dto) {
-        validator.validateUserExists(dto.userId());
+        if (dto.userId() != null) {
+            validator.validateUserExists(dto.userId());
+            Event event = finder.findEventOrThrow(dto.eventId());
+            if (!event.getInitiator().getId().equals(dto.userId())) {
+                throw new AccessException("Пользователь может редактировать только свои события");
+            }
+        }
         Event event = finder.findEventOrThrow(dto.eventId());
+
         mapper.updateEntity(dto, event);
 
         if (categoryChanged(event, dto)) {
@@ -72,7 +82,7 @@ public class EventServiceImpl implements EventService {
         }
 
         if (dto.hasStateAction()) {
-            applyStateAction(event, dto.stateAction());
+            applyStateActionForAdmin(event, dto.stateAction());
         }
 
         Event updatedEvent = repository.save(event);
@@ -158,7 +168,7 @@ public class EventServiceImpl implements EventService {
         return Long.parseLong(split[1]);
     }
 
-    private boolean categoryChanged (Event event, UpdateEventDto dto) {
+    private boolean categoryChanged(Event event, UpdateEventDto dto) {
         Long dtoCategoryId = dto.category();
         if (dtoCategoryId == null) {
             return false;
@@ -167,16 +177,17 @@ public class EventServiceImpl implements EventService {
         return !eventCategoryId.equals(dtoCategoryId);
     }
 
-    private void applyStateAction(Event event, StateAction stateAction) {
-        switch (stateAction) {
-            case PUBLISH_EVENT -> {
-                if (!event.getState().equals(State.PUBLISHED)) {
-                    event.setState(State.PUBLISHED);
-                    event.setPublishedOn(LocalDateTime.now());
-                }
+    private void applyStateActionForAdmin(Event event, StateAction stateAction) {
+        if (stateAction == StateAction.PUBLISH_EVENT) {
+            if (event.getState() != State.PENDING) {
+                throw new ConflictException("Только событие в PENDING можно опубликовать");
             }
-            case CANCEL_REVIEW -> event.setState(State.CANCELED);
-            default -> throw new IllegalArgumentException("Unacceptable state action: " + stateAction);
+            event.setState(State.PUBLISHED);
+            event.setPublishedOn(LocalDateTime.now());
+        } else if (stateAction == StateAction.CANCEL_REVIEW) {
+            event.setState(State.CANCELED);
+        } else {
+            throw new IllegalArgumentException("Неподдерживаемое действие");
         }
     }
 }
