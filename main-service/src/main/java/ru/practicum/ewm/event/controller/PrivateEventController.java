@@ -19,6 +19,10 @@ import ru.practicum.ewm.event.dto.request.CreateEventDto;
 import ru.practicum.ewm.event.dto.request.UpdateEventBody;
 import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 import ru.practicum.ewm.event.service.EventServiceImpl;
+import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.ewm.request.dto.ParticipationRequestDto;
+import ru.practicum.ewm.request.service.RequestService;
 import ru.practicum.ewm.sharing.constants.ApiPaths;
 
 import java.util.List;
@@ -30,6 +34,7 @@ import java.util.List;
 @Slf4j
 public class PrivateEventController {
     private final EventServiceImpl service;
+    private final RequestService requestService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -77,14 +82,21 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}/requests")
-    public Object getEventRequestsByUser(@PathVariable @Positive Long userId,
-                                         @PathVariable @Positive Long eventId) {
-        return null;
+    public List<ParticipationRequestDto> getEventRequestsByUser(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId) {
+
+        log.debug("Get participation requests for event ID {} by user ID {}", eventId, userId);
+        return requestService.getEventParticipationRequests(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests")
-    public Object updateEventRequestsByUser(@PathVariable @Positive Long userId,
-                                            @PathVariable @Positive Long eventId) {
-        return null;
+    public EventRequestStatusUpdateResult updateEventRequestsByUser(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId,
+            @RequestBody @Valid EventRequestStatusUpdateRequest updateRequest) {
+
+        log.debug("Update requests status for event ID {} by user ID {}: {}", eventId, userId, updateRequest);
+        return requestService.updateEventRequestStatus(userId, eventId, updateRequest);
     }
 }

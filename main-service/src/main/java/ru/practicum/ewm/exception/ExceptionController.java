@@ -7,6 +7,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -78,6 +79,15 @@ public class ExceptionController {
         return ResponseEntity.status(status)
                 .body(ApiError.of(status, e.getMessage(),
                         Collections.singletonList(e.getMessage()), stackTraceToString(e)));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiError> handleMissingParams(MissingServletRequestParameterException ex) {
+        log.info("Missing request parameter: {}", ex.getParameterName());
+        String error = "Обязательный параметр '%s' отсутствует".formatted(ex.getParameterName());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiError.of(HttpStatus.BAD_REQUEST, "Validation Failed",
+                        Collections.singletonList(error), stackTraceToString(ex)));
     }
 
     private String stackTraceToString(Exception e) {

@@ -158,7 +158,7 @@ public class EventServiceImpl implements EventService {
         return Long.parseLong(split[1]);
     }
 
-    private boolean categoryChanged (Event event, UpdateEventDto dto) {
+    private boolean categoryChanged(Event event, UpdateEventDto dto) {
         Long dtoCategoryId = dto.category();
         if (dtoCategoryId == null) {
             return false;

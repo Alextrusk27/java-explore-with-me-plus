@@ -32,3 +32,12 @@ CREATE TABLE events (
   CONSTRAINT events_published_on_check CHECK ((state = 'PUBLISHED' AND published_on IS NOT NULL) OR
                                               (state != 'PUBLISHED'))
 );
+
+create table if not exists participation_requests
+(
+    id bigint generated always as identity primary key,
+    created timestamp without time zone not null,
+    event_id bigint not null references events (id) on delete cascade,
+    user_id bigint not null references users (id) on delete cascade,
+    status varchar not null
+    );
