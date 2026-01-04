@@ -72,7 +72,10 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDto updateEvent(UpdateEventDto dto) {
-        validator.validateUserExists(dto.userId());
+        if (dto.userId() != null) {
+            validator.validateUserExists(dto.userId());
+        }
+
         Event event = finder.findEventOrThrow(dto.eventId());
 
         mapper.updateEntity(dto, event);
