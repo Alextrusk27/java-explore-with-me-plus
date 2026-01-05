@@ -45,7 +45,7 @@ public class PrivateEventController {
 
         log.info("PRIVATE: Create EVENT request: {} for user ID {}", body, userId);
         CreateEventDto dto = CreateEventDto.of(body, userId);
-        EventDto result = eventService.createEvent(dto);
+        EventDto result = eventService.create(dto);
         log.info("PRIVATE: Created EVENT ID {} for user ID {}", result.id(), userId);
         return result;
     }
@@ -58,7 +58,7 @@ public class PrivateEventController {
 
         log.info("PRIVATE: Get EVENTS for user ID {} with params: from={}, size={}", userId, from, size);
         EventParamsSorted params = EventParamsSorted.of(userId, from, size);
-        Page<EventInfo> result = eventService.getEvents(params);
+        Page<EventInfo> result = eventService.get(params);
         log.info("PRIVATE: Found {} EVENTS for user ID {}", result.getNumberOfElements(), userId);
         return result.getContent();
     }
@@ -70,7 +70,7 @@ public class PrivateEventController {
 
         log.info("PRIVATE: Get EVENT ID {} for user ID {}", eventId, userId);
         EventParams params = EventParams.of(userId, eventId);
-        EventDtoExtended result = eventService.getEvent(params);
+        EventDtoExtended result = eventService.get(params);
         log.info("PRIVATE: Found EVENT ID {} for user ID {}", eventId, userId);
         return result;
     }
@@ -83,7 +83,7 @@ public class PrivateEventController {
 
         log.info("PRIVATE: Update EVENT ID {} for user ID {}", eventId, userId);
         UpdateEventDto dto = UpdateEventDto.of(body, userId, eventId);
-        EventDto result = eventService.updateEvent(dto);
+        EventDto result = eventService.update(dto);
         log.info("PRIVATE: Updated EVENT ID {} for user ID {}", eventId, userId);
         return result;
     }

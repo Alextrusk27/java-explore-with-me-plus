@@ -7,14 +7,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.CreateHitDto;
 import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.ViewStatsDto;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
+import ru.practicum.ewm.event.dto.EventDtoShort;
+import ru.practicum.ewm.event.dto.Sort;
 import ru.practicum.ewm.event.dto.params.EventParams;
 import ru.practicum.ewm.event.dto.params.EventParamsSorted;
-import ru.practicum.ewm.event.dto.params.EventSearchParams;
+import ru.practicum.ewm.event.dto.params.AdminSearchParams;
+import ru.practicum.ewm.event.dto.params.PublicSearchParams;
 import ru.practicum.ewm.event.dto.projection.EventInfo;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
 import ru.practicum.ewm.event.dto.request.UpdateEventDto;
@@ -24,17 +28,17 @@ import ru.practicum.ewm.event.model.State;
 import ru.practicum.ewm.event.model.StateAction;
 import ru.practicum.ewm.event.repository.EventPredicateBuilder;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.model.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.sharing.EntityFinder;
 import ru.practicum.ewm.sharing.EntityValidator;
 import ru.practicum.ewm.user.model.User;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.sharing.constants.AppConstants.*;
@@ -56,7 +60,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDto createEvent(CreateEventDto dto) {
+    public EventDto create(CreateEventDto dto) {
         User initiator = finder.findUserOrThrow(dto.userId());
         Category category = finder.findCategoryOrThrow(dto.category());
 
@@ -71,7 +75,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventDto updateEvent(UpdateEventDto dto) {
+    public EventDto update(UpdateEventDto dto) {
         if (dto.userId() != null) {
             validator.validateUserExists(dto.userId());
         }
@@ -95,7 +99,23 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<EventInfo> getEvents(EventParamsSorted params) {
+    public EventDtoExtended get(Long id) {
+        Event event = finder.findEventOrThrow(id);
+
+        if (!event.getState().equals(State.PUBLISHED)) {
+            throw new NotFoundException(String.format("Event with id=%d was not found", id));
+        }
+
+        createHit(createUri(id));
+
+        Long views = getStat(id);
+        Long confirmedRequests = requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
+
+        return mapper.toExtendedDto(event, views, confirmedRequests);
+    }
+
+    @Override
+    public Page<EventInfo> get(EventParamsSorted params) {
         validator.validateUserExists(params.userId());
 
         return eventRepository.findByInitiatorId(
@@ -106,7 +126,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDtoExtended getEvent(EventParams params) {
+    public EventDtoExtended get(EventParams params) {
         validator.validateUserExists(params.userId());
 
         Event event = finder.findEventOrThrow(params.eventId());
@@ -117,7 +137,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDtoExtended> getEvents(EventSearchParams params) {
+    public List<EventDtoExtended> get(AdminSearchParams params) {
         Predicate predicate = new EventPredicateBuilder()
                 .withInitiators(params.users())
                 .withStates(params.states())
@@ -125,14 +145,12 @@ public class EventServiceImpl implements EventService {
                 .withDateRange(params.rangeStart(), params.rangeEnd())
                 .build();
 
-        List<Event> events = eventRepository.findAll(predicate, EVENTS_DEFAULT_PAGEABLE)
+        List<Event> events = eventRepository.findAll(predicate, params.pageable())
                 .getContent();
 
         if (events.isEmpty()) {
             return List.of();
         }
-
-        Map<Long, Long> views = getStat(events);
 
         List<Long> eventsIds = events.stream()
                 .map(Event::getId)
@@ -140,8 +158,54 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(eventsIds);
 
+        Map<Long, Long> views = getStat(events);
+
         return events.stream()
                 .map(event -> mapper.toExtendedDto(
+                        event,
+                        views.getOrDefault(event.getId(), 0L),
+                        confirmedRequests.getOrDefault(event.getId(), 0L)))
+                .toList();
+    }
+
+    @Override
+    public List<EventDtoShort> get(PublicSearchParams params) {
+        Predicate predicate = new EventPredicateBuilder()
+                .withTextSearch(params.text())
+                .withCategories(params.categories())
+                .withPaid(params.paid())
+                .withDateRange(params.rangeStart(), params.rangeEnd())
+                .forPublicSearch()
+                .build();
+
+        List<Event> events = eventRepository.findAll(predicate, params.pageable())
+                .getContent();
+
+        createHit(EVENTS_ROOT_PATH);
+
+        if (events.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> eventsIds = events.stream()
+                .map(Event::getId)
+                .toList();
+
+        Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(eventsIds);
+
+        events = filterAvailableEvents(events, confirmedRequests);
+
+        Map<Long, Long> views = getStat(events);
+
+        if (params.sort().equals(Sort.VIEWS)) {
+            events.sort(Comparator.comparing(
+                    event -> views.getOrDefault(event.getId(), 0L),
+                    Comparator.reverseOrder()
+            ));
+        }
+
+        return events.stream()
+                .map(event -> mapper.toDtoShort(
                         event,
                         views.getOrDefault(event.getId(), 0L),
                         confirmedRequests.getOrDefault(event.getId(), 0L)))
@@ -189,6 +253,21 @@ public class EventServiceImpl implements EventService {
                 .sum();
     }
 
+    private void createHit(String uri) {
+        try {
+            CreateHitDto dto = new CreateHitDto(
+                    MAIN_APP_NAME,
+                    uri,
+                    InetAddress.getLocalHost().getHostAddress(),
+                    LocalDateTime.now());
+
+            statsClient.createHit(dto);
+
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Error while creating hit.", e);
+        }
+    }
+
     private boolean hasValidResponse(ResponseEntity<List<ViewStatsDto>> response) {
         if (response == null) {
             return false;
@@ -208,7 +287,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private String createUri(Long eventId) {
-        return "event/" + eventId;
+        return EVENT_ROOT_PATH + eventId;
     }
 
     private Long extractIdFromUri(String uri) {
@@ -240,5 +319,14 @@ public class EventServiceImpl implements EventService {
 
             default -> throw new IllegalArgumentException("Unacceptable state action: " + stateAction);
         }
+    }
+
+    private List<Event> filterAvailableEvents(List<Event> events, Map<Long, Long> confirmedRequests) {
+        return events.stream()
+                .filter(event -> {
+                    long requestsCount = confirmedRequests.getOrDefault(event.getId(), 0L);
+                    return requestsCount < event.getParticipantLimit();
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

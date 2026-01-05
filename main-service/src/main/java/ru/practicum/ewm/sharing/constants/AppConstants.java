@@ -11,6 +11,11 @@ import java.time.format.DateTimeFormatter;
 @UtilityClass
 public class AppConstants {
 
+    public static final String MAIN_APP_NAME = "ewm-main-service";
+
+    public static final String EVENTS_ROOT_PATH = "/events";
+    public static final String EVENT_ROOT_PATH = "event/";
+
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
@@ -18,7 +23,6 @@ public class AppConstants {
     public static final String MAX_DATA_TIME = LocalDateTime.now().plusDays(1).format(DATE_TIME_FORMATTER);
 
     public static final Sort EVENTS_DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "eventDate");
-    public static final Pageable EVENTS_DEFAULT_PAGEABLE = PageRequest.of(0, 10, EVENTS_DEFAULT_SORT);
 
     public static final Pageable REQUESTS_DEFAULT_PAGEABLE = PageRequest.of(0, 10, Sort.by("id"));
 }

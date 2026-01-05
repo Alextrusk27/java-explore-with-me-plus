@@ -9,7 +9,7 @@ import java.util.List;
 
 import static ru.practicum.ewm.sharing.constants.AppConstants.*;
 
-public record EventSearchParams(
+public record AdminSearchParams(
         List<Long> users,
         List<State> states,
         List<Long> categories,
@@ -17,7 +17,7 @@ public record EventSearchParams(
         LocalDateTime rangeEnd,
         Pageable pageable
 ) {
-    public static EventSearchParams of(
+    public static AdminSearchParams of(
             List<Long> users,
             List<State> states,
             List<Long> categories,
@@ -36,7 +36,7 @@ public record EventSearchParams(
             rangeEnd = MAX_DATA_TIME;
         }
 
-        return new EventSearchParams(
+        return new AdminSearchParams(
                 users,
                 states,
                 categories,

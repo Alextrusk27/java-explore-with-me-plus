@@ -2,6 +2,7 @@ package ru.practicum.ewm.event.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import ru.practicum.ewm.event.model.QEvent;
 import ru.practicum.ewm.event.model.State;
@@ -43,6 +44,30 @@ public class EventPredicateBuilder {
         if (rangeEnd != null) {
             builder.and(event.eventDate.loe(rangeEnd));
         }
+        return this;
+    }
+
+    public EventPredicateBuilder withPaid(Boolean paid) {
+        if (paid != null) {
+            builder.and(event.paid.eq(paid));
+        }
+        return this;
+    }
+
+    public EventPredicateBuilder withTextSearch(String textSearch) {
+        if (textSearch != null && !textSearch.isEmpty()) {
+            String text = textSearch.trim().toLowerCase();
+
+            BooleanExpression annotationContains = event.annotation.lower().contains(text);
+            BooleanExpression descriptionContains = event.description.lower().contains(text);
+
+            builder.and(annotationContains.or(descriptionContains));
+        }
+        return this;
+    }
+
+    public EventPredicateBuilder forPublicSearch() {
+        builder.and(event.state.eq(State.PUBLISHED));
         return this;
     }
 
