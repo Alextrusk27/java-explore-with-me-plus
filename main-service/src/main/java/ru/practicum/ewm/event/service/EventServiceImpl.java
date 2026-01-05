@@ -67,7 +67,6 @@ public class EventServiceImpl implements EventService {
         newEvent.setCategory(category);
         newEvent.setInitiator(initiator);
 
-        log.warn("ТУТ ПОКА ВСЕ ОК {}", newEvent.getPaid());
         Event savedEvent = eventRepository.save(newEvent);
 
         return mapper.toDto(savedEvent);
@@ -147,7 +146,7 @@ public class EventServiceImpl implements EventService {
 
         createHit(createUri(id));
 
-        Long views = getStat(id, true);
+        Long views = getStat(id);
         Long confirmedRequests = requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
 
         return mapper.toExtendedDto(event, views, confirmedRequests);
@@ -169,7 +168,7 @@ public class EventServiceImpl implements EventService {
         validator.validateUserExists(params.userId());
 
         Event event = finder.findEventOrThrow(params.eventId());
-        long views = getStat(params.eventId(), true);
+        long views = getStat(params.eventId());
         long confirmedRequests = requestRepository.countByEventIdAndStatus(params.eventId(), RequestStatus.CONFIRMED);
 
         return mapper.toExtendedDto(event, views, confirmedRequests);
@@ -273,14 +272,14 @@ public class EventServiceImpl implements EventService {
         ));
     }
 
-    private Long getStat(Long eventId, boolean unique) {
+    private Long getStat(Long eventId) {
         String uri = createUri(eventId);
 
         ResponseEntity<List<ViewStatsDto>> response = statsClient.getStats(
                 NIN_DATA_TIME,
                 MAX_DATA_TIME,
                 List.of(uri),
-                unique
+                true
         );
 
         if (hasInvalidResponse(response)) {
@@ -348,17 +347,14 @@ public class EventServiceImpl implements EventService {
     private void applyStateAction(Event event, StateAction stateAction) {
         switch (stateAction) {
             case PUBLISH_EVENT -> {
-                event.setRequestModeration(false);
                 event.setState(State.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now());
             }
             case REJECT_EVENT, CANCEL_REVIEW -> {
-                event.setRequestModeration(false);
                 event.setState(State.CANCELED);
             }
 
             case SEND_TO_REVIEW -> {
-                event.setRequestModeration(true);
                 event.setState(State.PENDING);
             }
             default -> throw new IllegalArgumentException("Unacceptable state action: " + stateAction);

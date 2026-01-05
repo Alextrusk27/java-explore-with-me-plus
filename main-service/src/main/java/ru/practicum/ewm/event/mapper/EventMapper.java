@@ -25,7 +25,7 @@ public interface EventMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "publishedOn", ignore = true)
     @Mapping(target = "state", constant = DEFAULT_STATE)
-    @Mapping(target = "requestModeration", constant = "true")
+    @Mapping(target = "requestModeration", source = "requestModeration", defaultValue = "true")
     @Mapping(target = "paid", source = "paid", defaultValue = "false")
     @Mapping(target = "participantLimit", source = "participantLimit", defaultValue = "0")
     @Mapping(target = "location", source = "location")
