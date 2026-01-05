@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 
+import static ru.practicum.ewm.sharing.constants.AppConstants.DATE_TIME_FORMAT;
+
 public record ParticipationRequestDto(
         Long id,
 
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        @JsonFormat(pattern = DATE_TIME_FORMAT)
         LocalDateTime created,
 
         Long event,

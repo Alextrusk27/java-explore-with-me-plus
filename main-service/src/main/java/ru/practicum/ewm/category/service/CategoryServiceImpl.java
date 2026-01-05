@@ -9,6 +9,7 @@ import ru.practicum.ewm.category.dto.CreateCategoryDto;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
+import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 
@@ -19,22 +20,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
-    private final CategoryRepository repository;
+    private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
     @Transactional
     public CategoryDto addCategory(CreateCategoryDto createCategoryDto) {
-        if (repository.existsByName(createCategoryDto.name())) {
+        if (categoryRepository.existsByName(createCategoryDto.name())) {
             throw new ConflictException("Категория с таким именем " + createCategoryDto.name() + " уже существует");
         }
-        return categoryMapper.toDto(repository.save(categoryMapper.toEntity(createCategoryDto)));
+        return categoryMapper.toDto(categoryRepository.save(categoryMapper.toEntity(createCategoryDto)));
     }
 
     @Override
     @Transactional
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
-        if (repository.existsByNameAndIdNot(categoryDto.name(), id)) {
+        if (categoryRepository.existsByNameAndIdNot(categoryDto.name(), id)) {
             throw new ConflictException(
                     "Категория с таким именем " + categoryDto.name() + " уже существует"
             );
@@ -42,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = getCategory(id);
         category.setName(categoryDto.name());
-        return categoryMapper.toDto(repository.save(category));
+        return categoryMapper.toDto(categoryRepository.save(category));
     }
 
 
@@ -54,21 +56,24 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(Long id) {
-        if (!repository.existsById(id)) {
+        if (!categoryRepository.existsById(id)) {
             throw new NotFoundException("Category with id = " + id + " was not found");
         }
-        repository.deleteById(id);
+        if (eventRepository.existsByCategoryId(id)) {
+            throw new ConflictException("The category is not empty");
+        }
+        categoryRepository.deleteById(id);
     }
 
     @Override
     public Category getCategory(Long id) {
-        return repository.findById(id).orElseThrow(() ->
+        return categoryRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Category with id = " + id + " was not found"));
     }
 
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
-        return repository.findAll(PageRequest.of(from / size, size)).stream()
+        return categoryRepository.findAll(PageRequest.of(from / size, size)).stream()
                 .map(categoryMapper::toDto).collect(Collectors.toList());
     }
 }

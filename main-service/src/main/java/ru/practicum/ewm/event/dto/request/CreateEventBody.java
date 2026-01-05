@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public record CreateEventBody(
 
         @NotBlank(message = "Annotation required")
-        @Size(max = 500, message = "Annotation must be no longer than 500 characters")
+        @Size(min = 20, max = 2000, message = "Annotation must be between 20 and 2000 characters")
         String annotation,
 
         @NotNull(message = "Category required")
@@ -17,7 +17,7 @@ public record CreateEventBody(
         Long category,
 
         @NotBlank(message = "Description required")
-        @Size(max = 2000, message = "Description must be no longer than 2000 characters")
+        @Size(min = 20, max = 7000, message = "Description must be between 20 and 7000 characters")
         String description,
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -27,18 +27,15 @@ public record CreateEventBody(
 
         LocationBody location,
 
-        @NotNull(message = "Paid option required")
         Boolean paid,
 
-        @NotNull(message = "Participant limit required")
         @PositiveOrZero(message = "Participant limit cannot be < 0")
         Integer participantLimit,
 
-        @NotNull(message = "Request moderation option required")
         Boolean requestModeration,
 
         @NotBlank(message = "Title required")
-        @Size(max = 100, message = "Title must be no longer than 100 characters")
+        @Size(min = 3, max = 120, message = "Title must be between 3 and 120 characters")
         String title
 ) {
 }

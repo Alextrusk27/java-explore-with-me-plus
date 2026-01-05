@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.category.repository.CategoryRepository;
-import ru.practicum.ewm.event.EventRepository;
+import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.user.repository.UserRepository;
 

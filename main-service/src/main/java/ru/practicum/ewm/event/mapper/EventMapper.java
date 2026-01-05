@@ -4,6 +4,7 @@ import org.mapstruct.*;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
+import ru.practicum.ewm.event.dto.EventDtoShort;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
 import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 import ru.practicum.ewm.event.model.Event;
@@ -24,6 +25,9 @@ public interface EventMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "publishedOn", ignore = true)
     @Mapping(target = "state", constant = DEFAULT_STATE)
+    @Mapping(target = "requestModeration", source = "requestModeration", defaultValue = "true")
+    @Mapping(target = "paid", source = "paid", defaultValue = "false")
+    @Mapping(target = "participantLimit", source = "participantLimit", defaultValue = "0")
     @Mapping(target = "location", source = "location")
     Event toEntity(CreateEventDto dto);
 
@@ -32,6 +36,10 @@ public interface EventMapper {
     @Mapping(target = "views", source = "views")
     @Mapping(target = "confirmedRequests", source = "confirmedRequests")
     EventDtoExtended toExtendedDto(Event event, Long views, Long confirmedRequests);
+
+    @Mapping(target = "views", source = "views")
+    @Mapping(target = "confirmedRequests", source = "confirmedRequests")
+    EventDtoShort toDtoShort(Event event, Long views, Long confirmedRequests);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)

@@ -9,7 +9,7 @@ import ru.practicum.ewm.sharing.annotation.AtLeastHoursFromNow;
 
 import java.time.LocalDateTime;
 
-public record UpdateEventBody(
+public record AdminUpdateEventBody(
         @Size(min = 20, max = 2000, message = "Annotation must be between 20 and 2000 characters")
         String annotation,
 
@@ -20,7 +20,7 @@ public record UpdateEventBody(
         String description,
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        @AtLeastHoursFromNow(hours = 2)
+        @AtLeastHoursFromNow(hours = 1)
         LocalDateTime eventDate,
 
         LocationBody location,

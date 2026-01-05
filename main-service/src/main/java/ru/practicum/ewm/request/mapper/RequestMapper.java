@@ -7,10 +7,12 @@ import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.model.ParticipationRequest;
 import ru.practicum.ewm.request.model.RequestStatus;
 
+import static ru.practicum.ewm.sharing.constants.AppConstants.DATE_TIME_FORMAT;
+
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
 
-    @Mapping(target = "created", source = "created", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "created", dateFormat = DATE_TIME_FORMAT)
     @Mapping(target = "event", source = "event.id")
     @Mapping(target = "requester", source = "requester.id")
     @Mapping(target = "status", source = "status", qualifiedByName = "statusToString")

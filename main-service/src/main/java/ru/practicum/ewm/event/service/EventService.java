@@ -1,21 +1,33 @@
 package ru.practicum.ewm.event.service;
 
-import org.springframework.data.domain.Page;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
+import ru.practicum.ewm.event.dto.EventDtoShort;
+import ru.practicum.ewm.event.dto.params.AdminSearchParams;
 import ru.practicum.ewm.event.dto.params.EventParams;
 import ru.practicum.ewm.event.dto.params.EventParamsSorted;
+import ru.practicum.ewm.event.dto.params.PublicSearchParams;
 import ru.practicum.ewm.event.dto.projection.EventInfo;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
 import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 
+import java.util.List;
+
 public interface EventService {
 
-    EventDto createEvent(CreateEventDto createRequest);
+    EventDto create(CreateEventDto createRequest);
 
-    EventDto updateEvent(UpdateEventDto updateRequest);
+    EventDto update(UpdateEventDto updateRequest);
 
-    Page<EventInfo> getEvents(EventParamsSorted params);
+    EventDto adminUpdate(UpdateEventDto dto);
 
-    EventDtoExtended getEvent(EventParams params);
+    EventDtoExtended get(Long id);
+
+    EventDtoExtended get(EventParams params);
+
+    List<EventInfo> get(EventParamsSorted params);
+
+    List<EventDtoExtended> get(AdminSearchParams params);
+
+    List<EventDtoShort> get(PublicSearchParams params);
 }
