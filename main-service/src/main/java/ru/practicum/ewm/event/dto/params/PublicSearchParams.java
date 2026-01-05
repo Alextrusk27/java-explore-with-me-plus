@@ -31,10 +31,12 @@ public record PublicSearchParams(
             Integer from,
             Integer size) {
 
-        for (Long id : categories) {
-            if (id == null || id < 1) {
-                throw new ValidationException(
-                        String.format("Invalid category id: %s. Category id must be positive", id));
+        if (categories != null && !categories.isEmpty()) {
+            for (Long id : categories) {
+                if (id == null || id < 1) {
+                    throw new ValidationException(
+                            String.format("Invalid category id: %s. Category id must be positive", id));
+                }
             }
         }
 

@@ -219,7 +219,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findAll(predicate, params.pageable())
                 .getContent();
 
-        createHit(EVENTS_ROOT_PATH);
+        createHit(EVENTS_BASE_PATH);
 
         if (events.isEmpty()) {
             return List.of();
@@ -252,7 +252,7 @@ public class EventServiceImpl implements EventService {
 
     private Map<Long, Long> getStat(List<Event> events) {
         List<String> uris = events.stream()
-                .map(p -> "event/" + p.getId())
+                .map(p -> EVENT_PATH_TEMPLATE + p.getId())
                 .toList();
 
         List<ViewStatsDto> stats = statsClient.getStats(
@@ -325,7 +325,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private String createUri(Long eventId) {
-        return EVENT_ROOT_PATH + eventId;
+        return EVENT_PATH_TEMPLATE + eventId;
     }
 
     private Long extractIdFromUri(String uri) {
