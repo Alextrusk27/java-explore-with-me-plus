@@ -14,7 +14,6 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.EventDtoShort;
-import ru.practicum.ewm.event.dto.Sort;
 import ru.practicum.ewm.event.dto.params.EventParams;
 import ru.practicum.ewm.event.dto.params.EventParamsSorted;
 import ru.practicum.ewm.event.dto.params.AdminSearchParams;
@@ -25,9 +24,9 @@ import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.State;
-import ru.practicum.ewm.event.model.StateAction;
 import ru.practicum.ewm.event.repository.EventPredicateBuilder;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.model.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
@@ -68,6 +67,7 @@ public class EventServiceImpl implements EventService {
         newEvent.setCategory(category);
         newEvent.setInitiator(initiator);
 
+        log.warn("ТУТ ПОКА ВСЕ ОК {}", newEvent.getPaid());
         Event savedEvent = eventRepository.save(newEvent);
 
         return mapper.toDto(savedEvent);
@@ -76,11 +76,14 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDto update(UpdateEventDto dto) {
-        if (dto.userId() != null) {
-            validator.validateUserExists(dto.userId());
-        }
+
+        validator.validateUserExists(dto.userId());
 
         Event event = finder.findEventOrThrow(dto.eventId());
+
+        if (event.getState().equals(State.PUBLISHED)) {
+            throw new ConflictException("Only pending or canceled events can be changed");
+        }
 
         mapper.updateEntity(dto, event);
 
@@ -90,7 +93,43 @@ public class EventServiceImpl implements EventService {
         }
 
         if (dto.hasStateAction()) {
+            if (dto.stateAction() == StateAction.PUBLISH_EVENT ||
+                    (dto.stateAction() == StateAction.REJECT_EVENT)) {
+                throw new IllegalArgumentException("Illegal private state action: %s".formatted(dto.stateAction()));
+            }
             applyStateAction(event, dto.stateAction());
+        }
+
+        Event updatedEvent = eventRepository.save(event);
+
+        return mapper.toDto(updatedEvent);
+    }
+
+    @Transactional
+    @Override
+    public EventDto adminUpdate(UpdateEventDto dto) {
+        Event event = finder.findEventOrThrow(dto.eventId());
+        mapper.updateEntity(dto, event);
+
+        if (dto.hasStateAction()) {
+            if ((dto.stateAction() == StateAction.PUBLISH_EVENT ||
+                    dto.stateAction() == StateAction.REJECT_EVENT) &&
+                    event.getState() != State.PENDING) {
+
+                throw new ConflictException("Cannot publish/reject the event because it's not in the right state: %s"
+                        .formatted(event.getState()));
+
+            } if (dto.stateAction() == StateAction.SEND_TO_REVIEW ||
+                    dto.stateAction() == StateAction.CANCEL_REVIEW) {
+                throw new IllegalArgumentException("Illegal admin state action: %s".formatted(dto.stateAction()));
+            }
+
+            applyStateAction(event, dto.stateAction());
+        }
+
+        if (categoryChanged(event, dto)) {
+            Category category = finder.findCategoryOrThrow(dto.category());
+            event.setCategory(category);
         }
 
         Event updatedEvent = eventRepository.save(event);
@@ -108,7 +147,7 @@ public class EventServiceImpl implements EventService {
 
         createHit(createUri(id));
 
-        Long views = getStat(id);
+        Long views = getStat(id, true);
         Long confirmedRequests = requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
 
         return mapper.toExtendedDto(event, views, confirmedRequests);
@@ -130,7 +169,7 @@ public class EventServiceImpl implements EventService {
         validator.validateUserExists(params.userId());
 
         Event event = finder.findEventOrThrow(params.eventId());
-        long views = getStat(params.eventId());
+        long views = getStat(params.eventId(), true);
         long confirmedRequests = requestRepository.countByEventIdAndStatus(params.eventId(), RequestStatus.CONFIRMED);
 
         return mapper.toExtendedDto(event, views, confirmedRequests);
@@ -234,14 +273,14 @@ public class EventServiceImpl implements EventService {
         ));
     }
 
-    private Long getStat(Long eventId) {
+    private Long getStat(Long eventId, boolean unique) {
         String uri = createUri(eventId);
 
         ResponseEntity<List<ViewStatsDto>> response = statsClient.getStats(
                 NIN_DATA_TIME,
                 MAX_DATA_TIME,
                 List.of(uri),
-                false
+                unique
         );
 
         if (hasInvalidResponse(response)) {
@@ -309,14 +348,19 @@ public class EventServiceImpl implements EventService {
     private void applyStateAction(Event event, StateAction stateAction) {
         switch (stateAction) {
             case PUBLISH_EVENT -> {
-                if (!event.getState().equals(State.PUBLISHED)) {
-                    event.setState(State.PUBLISHED);
-                    event.setPublishedOn(LocalDateTime.now());
-                }
+                event.setRequestModeration(false);
+                event.setState(State.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
+            }
+            case REJECT_EVENT, CANCEL_REVIEW -> {
+                event.setRequestModeration(false);
+                event.setState(State.CANCELED);
             }
 
-            case CANCEL_REVIEW -> event.setState(State.CANCELED);
-
+            case SEND_TO_REVIEW -> {
+                event.setRequestModeration(true);
+                event.setState(State.PENDING);
+            }
             default -> throw new IllegalArgumentException("Unacceptable state action: " + stateAction);
         }
     }

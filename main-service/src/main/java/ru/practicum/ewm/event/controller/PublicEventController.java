@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.EventDtoShort;
-import ru.practicum.ewm.event.dto.Sort;
 import ru.practicum.ewm.event.dto.params.PublicSearchParams;
 import ru.practicum.ewm.event.service.EventService;
 import ru.practicum.ewm.sharing.constants.ApiPaths;
@@ -31,7 +30,7 @@ public class PublicEventController {
             @RequestParam(required = false) String rangeStart,
             @RequestParam(required = false) String rangeEnd,
             @RequestParam(required = false) Boolean onlyAvailable,
-            @RequestParam(required = false) Sort sort,
+            @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
 

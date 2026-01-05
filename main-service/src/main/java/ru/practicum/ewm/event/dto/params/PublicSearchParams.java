@@ -2,8 +2,8 @@ package ru.practicum.ewm.event.dto.params;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.ewm.event.dto.Sort;
-import ru.practicum.ewm.event.model.State;
+import ru.practicum.ewm.event.service.Sort;
+import ru.practicum.ewm.exception.ValidationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,9 +27,16 @@ public record PublicSearchParams(
             String rangeStart,
             String rangeEnd,
             Boolean onlyAvailable,
-            Sort sort,
+            String stringSort,
             Integer from,
             Integer size) {
+
+        for (Long id : categories) {
+            if (id == null || id < 1) {
+                throw new ValidationException(
+                        String.format("Invalid category id: %s. Category id must be positive", id));
+            }
+        }
 
         if (rangeStart == null) {
             rangeStart = NIN_DATA_TIME;
@@ -40,10 +47,17 @@ public record PublicSearchParams(
         }
 
         Pageable pageable;
+        Sort sort;
 
-        if (sort.equals(Sort.EVENT_DATE)) {
+        if (stringSort != null &&
+                !stringSort.isBlank() &&
+                Sort.valueOf(stringSort) == Sort.EVENT_DATE) {
+
+            sort = Sort.EVENT_DATE;
             pageable = PageRequest.of(from / size, size, EVENTS_DEFAULT_SORT);
+
         } else {
+            sort = Sort.VIEWS;
             pageable = PageRequest.of(from / size, size);
         }
 
@@ -59,3 +73,4 @@ public record PublicSearchParams(
         );
     }
 }
+

@@ -1,6 +1,6 @@
 package ru.practicum.ewm.event.dto.request;
 
-import ru.practicum.ewm.event.model.StateAction;
+import ru.practicum.ewm.event.service.StateAction;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +31,23 @@ public record UpdateEventDto(
                 body.stateAction(),
                 body.title(),
                 userId,
+                eventId
+        );
+    }
+
+    public static UpdateEventDto of(AdminUpdateEventBody body, Long eventId) {
+        return new UpdateEventDto(
+                body.annotation(),
+                body.category(),
+                body.description(),
+                body.eventDate(),
+                body.location(),
+                body.paid(),
+                body.participantLimit(),
+                body.requestModeration(),
+                body.stateAction(),
+                body.title(),
+                null,
                 eventId
         );
     }

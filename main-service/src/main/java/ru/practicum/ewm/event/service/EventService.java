@@ -20,6 +20,8 @@ public interface EventService {
 
     EventDto update(UpdateEventDto updateRequest);
 
+    EventDto adminUpdate(UpdateEventDto dto);
+
     EventDtoExtended get(Long id);
 
     EventDtoExtended get(EventParams params);
