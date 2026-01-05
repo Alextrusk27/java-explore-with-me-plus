@@ -10,4 +10,6 @@ public interface EventRepository extends JpaRepository<Event, Long>,
         QuerydslPredicateExecutor<Event> {
 
     <T> Page<T> findByInitiatorId(Long initiatorId, Pageable pageable, Class<T> type);
+
+    boolean existsByCategoryId(Long categoryId);
 }
