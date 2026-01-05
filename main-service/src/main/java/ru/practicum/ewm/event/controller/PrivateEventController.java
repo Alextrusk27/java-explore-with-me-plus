@@ -109,7 +109,7 @@ public class PrivateEventController {
             @RequestBody @Valid UpdateRequestStatusBody body) {
 
         log.info("PRIVATE: Update REQUESTS with Ids {} in EVENT with Id {} for user with Id {}. Status: {}",
-                body.requestIds(), eventId, userId,  body.status());
+                body.requestIds(), eventId, userId, body.status());
         UpdateRequestStatusDto dto = UpdateRequestStatusDto.of(body, userId, eventId);
         EventRequestStatusUpdateResult result = requestService.updateEventRequestStatus(dto);
         log.info("PRIVATE: REQUESTS updated. Status CONFIRMED {} requests. Status REJECTED {} requests",

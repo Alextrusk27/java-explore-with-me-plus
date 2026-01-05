@@ -35,7 +35,7 @@ public class PublicEventController {
             @RequestParam(defaultValue = "10") @Positive Integer size) {
 
         log.info("PUBLIC: Get EVENTS with params [text '{}', categories '{}', paid '{}', rangeStart '{}', " +
-                "rangeEnd '{}',  onlyAvailable '{}', sort '{}', from '{}', size '{}']",
+                        "rangeEnd '{}',  onlyAvailable '{}', sort '{}', from '{}', size '{}']",
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
         PublicSearchParams params = PublicSearchParams.of(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
                 sort, from, size);

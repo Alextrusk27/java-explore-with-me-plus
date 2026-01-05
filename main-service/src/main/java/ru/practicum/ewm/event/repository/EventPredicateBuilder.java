@@ -13,10 +13,10 @@ import java.util.Objects;
 
 public class EventPredicateBuilder {
     private static final QEvent event = QEvent.event;
-    private final BooleanBuilder builder =  new BooleanBuilder();
+    private final BooleanBuilder builder = new BooleanBuilder();
 
     public EventPredicateBuilder withInitiators(List<Long> initiatorsIds) {
-        if (initiatorsIds != null &&  !initiatorsIds.isEmpty()) {
+        if (initiatorsIds != null && !initiatorsIds.isEmpty()) {
             builder.and(event.initiator.id.in(initiatorsIds));
         }
         return this;

@@ -2,7 +2,6 @@ package ru.practicum.ewm.request.service;
 
 import org.springframework.data.domain.Page;
 import ru.practicum.ewm.event.dto.params.EventParams;
-import ru.practicum.ewm.request.dto.UpdateRequestStatusBody;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.UpdateRequestStatusDto;

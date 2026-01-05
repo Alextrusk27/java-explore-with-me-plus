@@ -14,9 +14,9 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.EventDtoShort;
+import ru.practicum.ewm.event.dto.params.AdminSearchParams;
 import ru.practicum.ewm.event.dto.params.EventParams;
 import ru.practicum.ewm.event.dto.params.EventParamsSorted;
-import ru.practicum.ewm.event.dto.params.AdminSearchParams;
 import ru.practicum.ewm.event.dto.params.PublicSearchParams;
 import ru.practicum.ewm.event.dto.projection.EventInfo;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
@@ -118,7 +118,8 @@ public class EventServiceImpl implements EventService {
                 throw new ConflictException("Cannot publish/reject the event because it's not in the right state: %s"
                         .formatted(event.getState()));
 
-            } if (dto.stateAction() == StateAction.SEND_TO_REVIEW ||
+            }
+            if (dto.stateAction() == StateAction.SEND_TO_REVIEW ||
                     dto.stateAction() == StateAction.CANCEL_REVIEW) {
                 throw new IllegalArgumentException("Illegal admin state action: %s".formatted(dto.stateAction()));
             }

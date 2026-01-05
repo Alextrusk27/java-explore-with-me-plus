@@ -1,7 +1,9 @@
 package ru.practicum.ewm.event.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import ru.practicum.ewm.event.service.StateAction;
 import ru.practicum.ewm.sharing.annotation.AtLeastHoursFromNow;
 
