@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -58,9 +57,9 @@ public class PrivateEventController {
 
         log.info("PRIVATE: Get EVENTS for user ID {} with params: from={}, size={}", userId, from, size);
         EventParamsSorted params = EventParamsSorted.of(userId, from, size);
-        Page<EventInfo> result = eventService.get(params);
-        log.info("PRIVATE: Found {} EVENTS for user ID {}", result.getNumberOfElements(), userId);
-        return result.getContent();
+        List<EventInfo> result = eventService.get(params);
+        log.info("PRIVATE: Found {} EVENTS for user ID {}", result.size(), userId);
+        return result;
     }
 
     @GetMapping("/{eventId}")
@@ -95,8 +94,7 @@ public class PrivateEventController {
 
         log.info("PRIVATE: Get Participation REQUESTS in EVENT with Id {} for user with Id {}", eventId, userId);
         EventParams params = EventParams.of(userId, eventId);
-        Page<ParticipationRequestDto> page = requestService.getEventRequests(params);
-        List<ParticipationRequestDto> result = page.getContent();
+        List<ParticipationRequestDto> result = requestService.getEventRequests(params);
         log.info("PRIVATE: Found {} Participation REQUESTS in EVENT with Id {} for user with Id {}",
                 result.size(), eventId, userId);
         return result;

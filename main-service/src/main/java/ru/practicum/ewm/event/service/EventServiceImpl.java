@@ -3,7 +3,6 @@ package ru.practicum.ewm.event.service;
 import com.querydsl.core.types.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,14 +153,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<EventInfo> get(EventParamsSorted params) {
+    public List<EventInfo> get(EventParamsSorted params) {
         validator.validateUserExists(params.userId());
 
         return eventRepository.findByInitiatorId(
-                params.userId(),
-                params.pageable(),
-                EventInfo.class
-        );
+                        params.userId(),
+                        params.pageable(),
+                        EventInfo.class)
+                .getContent();
     }
 
     @Override
@@ -351,13 +350,11 @@ public class EventServiceImpl implements EventService {
                 event.setState(State.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now());
             }
-            case REJECT_EVENT, CANCEL_REVIEW -> {
+            case REJECT_EVENT, CANCEL_REVIEW ->
                 event.setState(State.CANCELED);
-            }
 
-            case SEND_TO_REVIEW -> {
+            case SEND_TO_REVIEW ->
                 event.setState(State.PENDING);
-            }
             default -> throw new IllegalArgumentException("Unacceptable state action: " + stateAction);
         }
     }

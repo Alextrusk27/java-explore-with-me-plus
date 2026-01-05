@@ -1,6 +1,5 @@
 package ru.practicum.ewm.event.service;
 
-import org.springframework.data.domain.Page;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.EventDtoShort;
@@ -26,7 +25,7 @@ public interface EventService {
 
     EventDtoExtended get(EventParams params);
 
-    Page<EventInfo> get(EventParamsSorted params);
+    List<EventInfo> get(EventParamsSorted params);
 
     List<EventDtoExtended> get(AdminSearchParams params);
 

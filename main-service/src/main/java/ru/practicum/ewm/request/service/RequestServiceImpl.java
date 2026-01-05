@@ -2,7 +2,6 @@ package ru.practicum.ewm.request.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.dto.params.EventParams;
@@ -124,7 +123,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ParticipationRequestDto> getEventRequests(EventParams params) {
+    public List<ParticipationRequestDto> getEventRequests(EventParams params) {
         Event event = finder.findEventOrThrow(params.eventId());
         long initiatorId = event.getInitiator().getId();
 
@@ -134,8 +133,12 @@ public class RequestServiceImpl implements RequestService {
                             .formatted(params.userId(), params.eventId()));
         }
 
-        Page<ParticipationRequest> result = requestRepository.findAllByEvent(event, REQUESTS_DEFAULT_PAGEABLE);
-        return result.map(requestMapper::toDto);
+        List<ParticipationRequest> result = requestRepository.findAllByEvent(event, REQUESTS_DEFAULT_PAGEABLE)
+                .getContent();
+
+        return result.stream()
+                .map(requestMapper::toDto)
+                .toList();
     }
 
     @Override

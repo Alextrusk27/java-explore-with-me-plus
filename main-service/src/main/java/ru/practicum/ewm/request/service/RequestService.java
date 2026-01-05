@@ -1,6 +1,5 @@
 package ru.practicum.ewm.request.service;
 
-import org.springframework.data.domain.Page;
 import ru.practicum.ewm.event.dto.params.EventParams;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
@@ -15,7 +14,7 @@ public interface RequestService {
 
     ParticipationRequestDto cancel(Long userId, Long requestId);
 
-    Page<ParticipationRequestDto> getEventRequests(EventParams params);
+    List<ParticipationRequestDto> getEventRequests(EventParams params);
 
     EventRequestStatusUpdateResult updateEventRequestStatus(UpdateRequestStatusDto dto);
 }
