@@ -65,16 +65,15 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional(readOnly = true)
     public CompilationDto getCompilationById(Long compilationId) {
         Compilation compilation = getCompilation(compilationId);
-        CompilationDto compilationDto = compilationMapper.toDto(compilation);
-        if (compilation.getEvents() != null) {
-            List<Long> ids = compilation.getEvents().stream().map(Event::getId).collect(Collectors.toList());
-            Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(ids);
-            compilationDto.events().addAll(compilation.getEvents().stream()
-                    .map(event ->
-                            eventMapper.toDtoShort(event, confirmedRequests.getOrDefault(event.getId(), 0L)))
-                    .toList());
-        }
-        return compilationDto;
+
+        List<EventDtoShortWithoutViews> preparedEvents = prepareEvents(compilation);
+
+        return new CompilationDto(
+                compilation.getId(),
+                preparedEvents.isEmpty() ? null : preparedEvents,
+                compilation.getPinned(),
+                compilation.getTitle()
+        );
     }
 
     @Override
@@ -94,7 +93,7 @@ public class CompilationServiceImpl implements CompilationService {
             List<EventDtoShortWithoutViews> preparedEvents = prepareEvents(compilation);
             CompilationDto dto = new CompilationDto(
                     compilation.getId(),
-                    preparedEvents.isEmpty() ? null : preparedEvents, // Если событий нет, передаем null
+                    preparedEvents.isEmpty() ? null : preparedEvents,
                     compilation.getPinned(),
                     compilation.getTitle()
             );
@@ -106,6 +105,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilation) {
         Compilation compilation = getCompilation(compId);
+
         if (updateCompilation.events() != null) {
             Set<Event> events = updateCompilation.events().stream().map(id -> {
                 Event event = new Event();
@@ -114,25 +114,26 @@ public class CompilationServiceImpl implements CompilationService {
             }).collect(Collectors.toSet());
             compilation.setEvents(events);
         }
+
         if (updateCompilation.pinned() != null) {
             compilation.setPinned(updateCompilation.pinned());
         }
+
         String title = updateCompilation.title();
         if (title != null && !title.isBlank()) {
             compilation.setTitle(title);
         }
-        CompilationDto compilationDto = compilationMapper.toDto(compilationRepository.save(compilation));
-        if (compilation.getEvents() != null) {
-            List<Long> ids = compilation.getEvents().stream().map(Event::getId).collect(Collectors.toList());
-            Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(ids);
 
-            compilationDto.events().addAll(compilation.getEvents().stream()
-                    .map(event ->
-                            eventMapper.toDtoShort(event,
-                                    confirmedRequests.getOrDefault(event.getId(), 0L)))
-                    .toList());
-        }
-        return compilationDto;
+        Compilation updatedCompilation = compilationRepository.save(compilation);
+
+        List<EventDtoShortWithoutViews> preparedEvents = prepareEvents(updatedCompilation);
+
+        return new CompilationDto(
+                updatedCompilation.getId(),
+                preparedEvents.isEmpty() ? null : preparedEvents,
+                updatedCompilation.getPinned(),
+                updatedCompilation.getTitle()
+        );
     }
 
     @Override
