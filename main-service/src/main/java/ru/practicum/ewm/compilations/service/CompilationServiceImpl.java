@@ -10,6 +10,7 @@ import ru.practicum.ewm.compilations.dto.UpdateCompilationRequest;
 import ru.practicum.ewm.compilations.mapper.CompilationMapper;
 import ru.practicum.ewm.compilations.model.Compilation;
 import ru.practicum.ewm.compilations.repository.CompilationRepository;
+import ru.practicum.ewm.event.dto.EventDtoShortWithoutViews;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
@@ -36,24 +37,25 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = compilationMapper.toEntity(newCompilationDto);
-        if (newCompilationDto.events() != null) {
+
+        if (newCompilationDto.events() != null && !newCompilationDto.events().isEmpty()) {
             compilation.setEvents(eventRepository.findAllByIdIn(newCompilationDto.events()));
         }
 
-        CompilationDto compilationDto = compilationMapper.toDto(compilationRepository.save(compilation));
+        Compilation savedCompilation = compilationRepository.save(compilation);
 
-        if (compilation.getEvents() != null) {
+        List<Long> ids = savedCompilation.getEvents().stream().map(Event::getId).collect(Collectors.toList());
 
-            List<Long> ids = compilation.getEvents().stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(ids);
 
-            Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(ids);
+        List<EventDtoShortWithoutViews> eventsWithRequests = savedCompilation.getEvents().stream()
+                .map(event -> eventMapper.toDtoShort(event, confirmedRequests.getOrDefault(event.getId(), 0L)))
+                .toList();
 
-            compilationDto.events().addAll(compilation.getEvents().stream()
-                    .map(event ->
-                            eventMapper.toDtoShort(event, confirmedRequests.getOrDefault(event.getId(), 0L)))
-                    .toList());
-        }
-        return compilationDto;
+        return new CompilationDto(savedCompilation.getId(),
+                eventsWithRequests.isEmpty() ? null : eventsWithRequests,
+                savedCompilation.getPinned(),
+                savedCompilation.getTitle());
     }
 
     @Override
