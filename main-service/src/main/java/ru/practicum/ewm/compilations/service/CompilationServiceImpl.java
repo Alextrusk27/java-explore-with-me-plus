@@ -50,7 +50,7 @@ public class CompilationServiceImpl implements CompilationService {
                 .toList();
 
         return new CompilationDto(savedCompilation.getId(),
-                eventsWithRequests.isEmpty() ? null : eventsWithRequests,
+                eventsWithRequests,
                 savedCompilation.getPinned(),
                 savedCompilation.getTitle());
     }
