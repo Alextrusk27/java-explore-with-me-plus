@@ -70,7 +70,7 @@ public class CompilationServiceImpl implements CompilationService {
 
         return new CompilationDto(
                 compilation.getId(),
-                preparedEvents.isEmpty() ? null : preparedEvents,
+                preparedEvents,
                 compilation.getPinned(),
                 compilation.getTitle()
         );
@@ -93,7 +93,7 @@ public class CompilationServiceImpl implements CompilationService {
             List<EventDtoShortWithoutViews> preparedEvents = prepareEvents(compilation);
             CompilationDto dto = new CompilationDto(
                     compilation.getId(),
-                    preparedEvents.isEmpty() ? null : preparedEvents,
+                    preparedEvents,
                     compilation.getPinned(),
                     compilation.getTitle()
             );
@@ -130,7 +130,7 @@ public class CompilationServiceImpl implements CompilationService {
 
         return new CompilationDto(
                 updatedCompilation.getId(),
-                preparedEvents.isEmpty() ? null : preparedEvents,
+                preparedEvents,
                 updatedCompilation.getPinned(),
                 updatedCompilation.getTitle()
         );
