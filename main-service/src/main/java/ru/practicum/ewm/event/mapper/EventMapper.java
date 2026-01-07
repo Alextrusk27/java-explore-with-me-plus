@@ -5,6 +5,7 @@ import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.EventDtoShort;
+import ru.practicum.ewm.event.dto.EventDtoShortWithoutViews;
 import ru.practicum.ewm.event.dto.request.CreateEventDto;
 import ru.practicum.ewm.event.dto.request.UpdateEventDto;
 import ru.practicum.ewm.event.model.Event;
@@ -40,6 +41,9 @@ public interface EventMapper {
     @Mapping(target = "views", source = "views")
     @Mapping(target = "confirmedRequests", source = "confirmedRequests")
     EventDtoShort toDtoShort(Event event, Long views, Long confirmedRequests);
+
+    @Mapping(target = "confirmedRequests", source = "confirmedRequests")
+    EventDtoShortWithoutViews toDtoShort(Event event, Long confirmedRequests);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
