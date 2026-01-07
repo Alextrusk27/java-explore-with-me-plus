@@ -8,13 +8,10 @@ import java.util.List;
 public record UpdateCompilationRequest(
         List<Long> events,
 
-        boolean pinned,
+        Boolean pinned,
 
         @NotBlank
         @Size(min = 1, max = 50)
         String title
 ) {
-    public Boolean getPinned() {
-        return pinned;
-    }
 }

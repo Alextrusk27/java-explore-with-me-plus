@@ -133,8 +133,8 @@ public class CompilationServiceImpl implements CompilationService {
             }).collect(Collectors.toSet());
             compilation.setEvents(events);
         }
-        if (updateCompilation.getPinned() != null) {
-            compilation.setPinned(updateCompilation.getPinned());
+        if (updateCompilation.pinned() != null) {
+            compilation.setPinned(updateCompilation.pinned());
         }
         String title = updateCompilation.title();
         if (title != null && !title.isBlank()) {
