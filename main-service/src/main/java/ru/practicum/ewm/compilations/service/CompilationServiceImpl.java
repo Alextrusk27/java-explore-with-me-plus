@@ -2,8 +2,10 @@ package ru.practicum.ewm.compilations.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.compilations.dto.CompilationDto;
 import ru.practicum.ewm.compilations.dto.NewCompilationDto;
 import ru.practicum.ewm.compilations.dto.UpdateCompilationRequest;
@@ -16,14 +18,14 @@ import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.repository.RequestRepository;
-import org.springframework.data.domain.Pageable;
+import ru.practicum.ewm.sharing.EntityName;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
@@ -32,21 +34,29 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventMapper eventMapper;
 
     @Override
+    @Transactional
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = compilationMapper.toEntity(newCompilationDto);
 
         if (newCompilationDto.events() != null && !newCompilationDto.events().isEmpty()) {
-            compilation.setEvents(eventRepository.findAllByIdIn(newCompilationDto.events()));
+            compilation.setEvents(eventRepository
+                    .findAllByIdIn(newCompilationDto.events()));
         }
 
         Compilation savedCompilation = compilationRepository.save(compilation);
 
-        List<Long> ids = savedCompilation.getEvents().stream().map(Event::getId).collect(Collectors.toList());
+        List<Long> ids = savedCompilation
+                .getEvents()
+                .stream()
+                .map(Event::getId)
+                .toList();
 
         Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(ids);
 
         List<EventDtoShortWithoutViews> eventsWithRequests = savedCompilation.getEvents().stream()
-                .map(event -> eventMapper.toDtoShort(event, confirmedRequests.getOrDefault(event.getId(), 0L)))
+                .map(event -> eventMapper.toDtoShort(
+                        event, confirmedRequests
+                                .getOrDefault(event.getId(), 0L)))
                 .toList();
 
         return new CompilationDto(savedCompilation.getId(),
@@ -56,15 +66,8 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public Compilation getCompilation(Long compilationId) {
-        return compilationRepository.findById(compilationId).orElseThrow(() ->
-                new NotFoundException("Compilation id=" + compilationId + " not found"));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public CompilationDto getCompilationById(Long compilationId) {
-        Compilation compilation = getCompilation(compilationId);
+        Compilation compilation = findCompilationOrThrow(compilationId);
 
         List<EventDtoShortWithoutViews> preparedEvents = prepareEvents(compilation);
 
@@ -77,7 +80,6 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Compilation> compilations;
@@ -103,15 +105,18 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilation) {
-        Compilation compilation = getCompilation(compId);
+        Compilation compilation = findCompilationOrThrow(compId);
 
         if (updateCompilation.events() != null) {
-            Set<Event> events = updateCompilation.events().stream().map(id -> {
-                Event event = new Event();
-                event.setId(id);
-                return event;
-            }).collect(Collectors.toSet());
+            Set<Event> events = updateCompilation.events().stream()
+                    .map(id -> {
+                        Event event = new Event();
+                        event.setId(id);
+                        return event;
+                    })
+                    .collect(Collectors.toSet());
             compilation.setEvents(events);
         }
 
@@ -137,9 +142,16 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompilation(Long compilationId) {
-        getCompilation(compilationId);
+        findCompilationOrThrow(compilationId);
         compilationRepository.deleteById(compilationId);
+    }
+
+    private Compilation findCompilationOrThrow(Long compilationId) {
+        return compilationRepository.findById(compilationId)
+                .orElseThrow(() -> new NotFoundException("%s with ID %s not found"
+                        .formatted(EntityName.COMPILATION.getValue(), compilationId)));
     }
 
     private List<EventDtoShortWithoutViews> prepareEvents(Compilation compilation) {
@@ -147,7 +159,10 @@ public class CompilationServiceImpl implements CompilationService {
             return Collections.emptyList();
         }
 
-        List<Long> ids = compilation.getEvents().stream().map(Event::getId).collect(Collectors.toList());
+        List<Long> ids = compilation.getEvents().stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
         Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(ids);
 
         return compilation.getEvents().stream()

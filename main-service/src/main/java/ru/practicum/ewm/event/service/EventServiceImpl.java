@@ -10,6 +10,7 @@ import ru.practicum.ewm.CreateHitDto;
 import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.ViewStatsDto;
 import ru.practicum.ewm.category.model.Category;
+import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.EventDtoExtended;
 import ru.practicum.ewm.event.dto.EventDtoShort;
@@ -29,9 +30,9 @@ import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.model.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
-import ru.practicum.ewm.sharing.EntityFinder;
-import ru.practicum.ewm.sharing.EntityValidator;
+import ru.practicum.ewm.sharing.EntityName;
 import ru.practicum.ewm.user.model.User;
+import ru.practicum.ewm.user.repository.UserRepository;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -47,10 +48,9 @@ import static ru.practicum.ewm.sharing.constants.AppConstants.*;
 @Slf4j
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
-
-    private final EntityFinder finder;
-    private final EntityValidator validator;
 
     private final EventMapper mapper;
 
@@ -59,8 +59,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDto create(CreateEventDto dto) {
-        User initiator = finder.findUserOrThrow(dto.userId());
-        Category category = finder.findCategoryOrThrow(dto.category());
+        User initiator = findUserOrThrow(dto.userId());
+        Category category = findCategoryOrThrow(dto.category());
 
         Event newEvent = mapper.toEntity(dto);
         newEvent.setCategory(category);
@@ -75,9 +75,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto update(UpdateEventDto dto) {
 
-        validator.validateUserExists(dto.userId());
+        findUserOrThrow(dto.userId());
 
-        Event event = finder.findEventOrThrow(dto.eventId());
+        Event event = findEventOrThrow(dto.eventId());
 
         if (event.getState().equals(State.PUBLISHED)) {
             throw new ConflictException("Only pending or canceled events can be changed");
@@ -86,7 +86,7 @@ public class EventServiceImpl implements EventService {
         mapper.updateEntity(dto, event);
 
         if (categoryChanged(event, dto)) {
-            Category category = finder.findCategoryOrThrow(dto.category());
+            Category category = findCategoryOrThrow(dto.category());
             event.setCategory(category);
         }
 
@@ -106,7 +106,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDto adminUpdate(UpdateEventDto dto) {
-        Event event = finder.findEventOrThrow(dto.eventId());
+        Event event = findEventOrThrow(dto.eventId());
         mapper.updateEntity(dto, event);
 
         if (dto.hasStateAction()) {
@@ -127,7 +127,7 @@ public class EventServiceImpl implements EventService {
         }
 
         if (categoryChanged(event, dto)) {
-            Category category = finder.findCategoryOrThrow(dto.category());
+            Category category = findCategoryOrThrow(dto.category());
             event.setCategory(category);
         }
 
@@ -138,7 +138,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDtoExtended get(Long id) {
-        Event event = finder.findEventOrThrow(id);
+        Event event = findEventOrThrow(id);
 
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException(String.format("Event with id=%d was not found", id));
@@ -154,7 +154,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventInfo> get(EventParamsSorted params) {
-        validator.validateUserExists(params.userId());
+        findUserOrThrow(params.userId());
 
         return eventRepository.findByInitiatorId(
                         params.userId(),
@@ -165,9 +165,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDtoExtended get(EventParams params) {
-        validator.validateUserExists(params.userId());
+        findUserOrThrow(params.userId());
 
-        Event event = finder.findEventOrThrow(params.eventId());
+        Event event = findEventOrThrow(params.eventId());
         long views = getStat(params.eventId());
         long confirmedRequests = requestRepository.countByEventIdAndStatus(params.eventId(), RequestStatus.CONFIRMED);
 
@@ -248,6 +248,27 @@ public class EventServiceImpl implements EventService {
                         views.getOrDefault(event.getId(), 0L),
                         confirmedRequests.getOrDefault(event.getId(), 0L)))
                 .toList();
+    }
+
+    private Event findEventOrThrow(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> throwNotFound(eventId, EntityName.EVENT));
+    }
+
+    private User findUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> throwNotFound(userId, EntityName.USER));
+    }
+
+    private Category findCategoryOrThrow(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> throwNotFound(categoryId, EntityName.CATEGORY));
+    }
+
+    private NotFoundException throwNotFound(Long entityId, EntityName entityName) {
+        String entityClassName = entityName.getValue();
+        log.warn("Searching failed: {} with ID {} not found", entityClassName, entityId);
+        return new NotFoundException("%s with ID %s not found".formatted(entityName, entityId));
     }
 
     private Map<Long, Long> getStat(List<Event> events) {
@@ -350,11 +371,9 @@ public class EventServiceImpl implements EventService {
                 event.setState(State.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now());
             }
-            case REJECT_EVENT, CANCEL_REVIEW ->
-                event.setState(State.CANCELED);
+            case REJECT_EVENT, CANCEL_REVIEW -> event.setState(State.CANCELED);
 
-            case SEND_TO_REVIEW ->
-                event.setState(State.PENDING);
+            case SEND_TO_REVIEW -> event.setState(State.PENDING);
             default -> throw new IllegalArgumentException("Unacceptable state action: " + stateAction);
         }
     }

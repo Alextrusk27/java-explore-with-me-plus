@@ -15,7 +15,5 @@ public interface CategoryService {
 
     void deleteCategory(Long id);
 
-    Category getCategory(Long id);
-
     List<CategoryDto> getCategories(Integer from, Integer size);
 }

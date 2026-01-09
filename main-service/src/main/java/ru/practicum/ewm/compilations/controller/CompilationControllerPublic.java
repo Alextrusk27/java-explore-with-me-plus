@@ -7,12 +7,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilations.dto.CompilationDto;
 import ru.practicum.ewm.compilations.service.CompilationService;
+import ru.practicum.ewm.sharing.constants.ApiPaths;
 
 import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/compilations")
+@RequestMapping(ApiPaths.Public.COMPILATIONS)
 @RequiredArgsConstructor
 public class CompilationControllerPublic {
     private final CompilationService compilationService;

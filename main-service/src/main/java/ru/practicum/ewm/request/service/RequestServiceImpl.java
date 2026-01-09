@@ -7,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.dto.params.EventParams;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.State;
+import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.AccessException;
 import ru.practicum.ewm.exception.ConflictException;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.UpdateRequestStatusDto;
@@ -16,8 +18,9 @@ import ru.practicum.ewm.request.mapper.RequestMapper;
 import ru.practicum.ewm.request.model.ParticipationRequest;
 import ru.practicum.ewm.request.model.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
-import ru.practicum.ewm.sharing.EntityFinder;
+import ru.practicum.ewm.sharing.EntityName;
 import ru.practicum.ewm.user.model.User;
+import ru.practicum.ewm.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,15 +36,15 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
-
-    private final EntityFinder finder;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) {
 
-        User user = finder.findUserOrThrow(userId);
-        Event event = finder.findEventOrThrow(eventId);
+        User user = findUserOrThrow(userId);
+        Event event = findEventOrThrow(eventId);
 
         if (event.getState() != State.PUBLISHED) {
             throw new ConflictException(
@@ -94,7 +97,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> get(Long userId) {
-        User user = finder.findUserOrThrow(userId);
+        User user = findUserOrThrow(userId);
 
         return requestRepository.findAllByRequester(user).stream()
                 .map(requestMapper::toDto)
@@ -104,9 +107,9 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ParticipationRequestDto cancel(Long userId, Long requestId) {
-        User user = finder.findUserOrThrow(userId);
+        User user = findUserOrThrow(userId);
 
-        ParticipationRequest request = finder.findEventRequestOrThrow(requestId);
+        ParticipationRequest request = findRequestOrThrow(requestId);
 
         if (!request.getRequester().equals(user)) {
             throw new AccessException(
@@ -124,7 +127,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getEventRequests(EventParams params) {
-        Event event = finder.findEventOrThrow(params.eventId());
+        Event event = findEventOrThrow(params.eventId());
         long initiatorId = event.getInitiator().getId();
 
         if (initiatorId != params.userId()) {
@@ -144,7 +147,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public EventRequestStatusUpdateResult updateEventRequestStatus(UpdateRequestStatusDto dto) {
-        Event event = finder.findEventOrThrow(dto.eventId());
+        Event event = findEventOrThrow(dto.eventId());
 
         if (!event.getInitiator().getId().equals(dto.userId())) {
             throw new AccessException(
@@ -213,5 +216,26 @@ public class RequestServiceImpl implements RequestService {
                 .toList();
 
         return new EventRequestStatusUpdateResult(confirmedDtos, rejectedDtos);
+    }
+
+    private ParticipationRequest findRequestOrThrow(Long requestId) {
+        return requestRepository.findById(requestId)
+                .orElseThrow(() -> throwNotFound(requestId, EntityName.REQUEST));
+    }
+
+    private User findUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> throwNotFound(userId, EntityName.USER));
+    }
+
+    private Event findEventOrThrow(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> throwNotFound(eventId, EntityName.EVENT));
+    }
+
+    private NotFoundException throwNotFound(Long entityId, EntityName entityName) {
+        String entityClassName = entityName.getValue();
+        log.warn("Searching failed: {} with ID {} not found", entityClassName, entityId);
+        return new NotFoundException("%s with ID %s not found".formatted(entityName, entityId));
     }
 }

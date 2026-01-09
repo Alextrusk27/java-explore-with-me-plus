@@ -8,9 +8,10 @@ import ru.practicum.ewm.compilations.dto.CompilationDto;
 import ru.practicum.ewm.compilations.dto.NewCompilationDto;
 import ru.practicum.ewm.compilations.dto.UpdateCompilationRequest;
 import ru.practicum.ewm.compilations.service.CompilationService;
+import ru.practicum.ewm.sharing.constants.ApiPaths;
 
 @RestController
-@RequestMapping("/admin/compilations")
+@RequestMapping(ApiPaths.Admin.COMPILATIONS)
 @RequiredArgsConstructor
 public class CompilationControllerAdmin {
     private final CompilationService compilationService;

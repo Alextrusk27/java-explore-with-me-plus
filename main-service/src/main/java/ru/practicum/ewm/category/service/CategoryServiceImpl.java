@@ -12,14 +12,15 @@ import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.sharing.EntityName;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
+
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
@@ -42,23 +43,21 @@ public class CategoryServiceImpl implements CategoryService {
             );
         }
 
-        Category category = getCategory(id);
+        Category category = findCategoryOrThrow(id);
         category.setName(categoryDto.name());
         return categoryMapper.toDto(categoryRepository.save(category));
     }
 
-
     @Override
     public CategoryDto getCategoryById(Long id) {
-        return categoryMapper.toDto(getCategory(id));
+        Category category = findCategoryOrThrow(id);
+        return categoryMapper.toDto(category);
     }
 
     @Override
     @Transactional
     public void deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new NotFoundException("Category with id = " + id + " was not found");
-        }
+        findCategoryOrThrow(id);
         if (eventRepository.existsByCategoryId(id)) {
             throw new ConflictException("The category is not empty");
         }
@@ -66,14 +65,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category getCategory(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Category with id = " + id + " was not found"));
-    }
-
-    @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         return categoryRepository.findAll(PageRequest.of(from / size, size)).stream()
                 .map(categoryMapper::toDto).collect(Collectors.toList());
+    }
+
+    private Category findCategoryOrThrow(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new NotFoundException("%s with ID %s not found"
+                        .formatted(EntityName.CATEGORY.getValue(), categoryId)));
     }
 }
