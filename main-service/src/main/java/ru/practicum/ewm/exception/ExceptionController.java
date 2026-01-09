@@ -80,14 +80,14 @@ public class ExceptionController {
                         Collections.singletonList(e.getMessage())));
     }
 
-    @ExceptionHandler
-    public ResponseEntity<ApiError> handleException(final Exception e) {
-        log.warn("Exception: {}", e.getMessage());
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        return ResponseEntity.status(status)
-                .body(ApiError.of(status, e.getMessage(),
-                        Collections.singletonList(e.getMessage())));
-    }
+//    @ExceptionHandler
+//    public ResponseEntity<ApiError> handleException(final Exception e) {
+//        log.warn("Exception: {}", e.getMessage());
+//        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+//        return ResponseEntity.status(status)
+//                .body(ApiError.of(status, e.getMessage(),
+//                        Collections.singletonList(e.getMessage())));
+//    }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiError> handleMissingParams(MissingServletRequestParameterException ex) {

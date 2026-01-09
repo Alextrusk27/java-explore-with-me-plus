@@ -20,7 +20,10 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.sharing.EntityName;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

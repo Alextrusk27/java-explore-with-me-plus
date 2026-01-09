@@ -7,7 +7,8 @@ import ru.practicum.ewm.event.model.State;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.practicum.ewm.sharing.constants.AppConstants.*;
+import static ru.practicum.ewm.sharing.constants.AppConstants.DATE_TIME_FORMATTER;
+import static ru.practicum.ewm.sharing.constants.AppConstants.EVENTS_DEFAULT_SORT;
 
 public record AdminSearchParams(
         List<Long> users,
@@ -28,12 +29,23 @@ public record AdminSearchParams(
 
         Pageable pageable = PageRequest.of(from / size, size, EVENTS_DEFAULT_SORT);
 
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+
+        if (rangeStart != null && !rangeStart.isBlank()) {
+            start = LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER);
+        }
+
+        if (rangeEnd != null && !rangeEnd.isBlank()) {
+            end = LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER);
+        }
+
         return new AdminSearchParams(
                 users,
                 states,
                 categories,
-                LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER),
-                LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER),
+                start,
+                end,
                 pageable
         );
     }

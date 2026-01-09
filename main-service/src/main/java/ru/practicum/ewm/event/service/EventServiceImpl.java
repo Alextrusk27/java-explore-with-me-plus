@@ -387,16 +387,17 @@ public class EventServiceImpl implements EventService {
                 .map(p -> EVENT_PATH_TEMPLATE + p.getId())
                 .toList();
 
-        String minDataTime = Objects.requireNonNull(events.stream()
+        LocalDateTime minDataTime = events.stream()
                 .map(Event::getPublishedOn)
+                .filter(Objects::nonNull)
                 .min(Comparator.naturalOrder())
-                .toString());
+                .orElse(LocalDateTime.now());
 
         List<ViewStatsDto> stats = statsClient.getStats(
-                        minDataTime,
-                        LocalDateTime.now().toString(),
+                        minDataTime.format(DATE_TIME_FORMATTER),
+                        LocalDateTime.now().format(DATE_TIME_FORMATTER),
                         uris,
-                        false)
+                        true)
                 .getBody();
 
         if (stats == null) {
@@ -448,7 +449,8 @@ public class EventServiceImpl implements EventService {
 
     private Long extractIdFromUri(String uri) {
         String[] split = uri.split("/");
-        return Long.parseLong(split[1]);
+        String lastPart = split[split.length - 1];
+        return Long.parseLong(lastPart);
     }
 
     private boolean categoryChanged(Event event, UpdateEventDto dto) {

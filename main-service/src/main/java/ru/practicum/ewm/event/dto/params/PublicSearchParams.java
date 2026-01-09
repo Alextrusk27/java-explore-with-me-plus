@@ -8,7 +8,8 @@ import ru.practicum.ewm.exception.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.practicum.ewm.sharing.constants.AppConstants.*;
+import static ru.practicum.ewm.sharing.constants.AppConstants.DATE_TIME_FORMATTER;
+import static ru.practicum.ewm.sharing.constants.AppConstants.EVENTS_DEFAULT_SORT;
 
 public record PublicSearchParams(
         String text,
@@ -42,6 +43,8 @@ public record PublicSearchParams(
 
         Pageable pageable;
         Sort sort;
+        LocalDateTime start = null;
+        LocalDateTime end = null;
 
         if (stringSort != null &&
                 !stringSort.isBlank() &&
@@ -55,12 +58,20 @@ public record PublicSearchParams(
             pageable = PageRequest.of(from / size, size);
         }
 
+        if (rangeStart != null && !rangeStart.isBlank()) {
+            start = LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER);
+        }
+
+        if (rangeEnd != null && !rangeEnd.isBlank()) {
+            end = LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER);
+        }
+
         return new PublicSearchParams(
                 text,
                 categories,
                 paid,
-                LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER),
-                LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER),
+                start,
+                end,
                 onlyAvailable,
                 sort,
                 pageable
