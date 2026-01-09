@@ -6,8 +6,8 @@ import java.util.List;
 
 public record CompilationDto(
         Long id,
-        List<EventDtoShortWithoutViews> events,
         Boolean pinned,
-        String title
+        String title,
+        List<EventDtoShortWithoutViews> events
 ) {
 }

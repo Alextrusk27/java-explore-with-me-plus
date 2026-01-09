@@ -1,11 +1,11 @@
 package ru.practicum.ewm.compilations.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.compilations.dto.CompilationDto;
 import ru.practicum.ewm.compilations.dto.NewCompilationDto;
 import ru.practicum.ewm.compilations.dto.UpdateCompilationRequest;
@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
@@ -60,9 +61,9 @@ public class CompilationServiceImpl implements CompilationService {
                 .toList();
 
         return new CompilationDto(savedCompilation.getId(),
-                eventsWithRequests,
                 savedCompilation.getPinned(),
-                savedCompilation.getTitle());
+                savedCompilation.getTitle(),
+                eventsWithRequests);
     }
 
     @Override
@@ -73,35 +74,40 @@ public class CompilationServiceImpl implements CompilationService {
 
         return new CompilationDto(
                 compilation.getId(),
-                preparedEvents,
                 compilation.getPinned(),
-                compilation.getTitle()
+                compilation.getTitle(),
+                preparedEvents
         );
     }
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Compilation> compilations;
-        List<CompilationDto> result = new ArrayList<>();
 
-        if (pinned != null) {
-            compilations = compilationRepository.findAllByPinned(pinned, pageable);
-        } else {
-            compilations = compilationRepository.findAll(pageable).getContent();
-        }
+        List<Compilation> compilations = compilationRepository
+                .findAllByPinned(pinned, pageable)
+                .getContent();
 
-        for (Compilation compilation : compilations) {
-            List<EventDtoShortWithoutViews> preparedEvents = prepareEvents(compilation);
-            CompilationDto dto = new CompilationDto(
-                    compilation.getId(),
-                    preparedEvents,
-                    compilation.getPinned(),
-                    compilation.getTitle()
-            );
-            result.add(dto);
-        }
-        return result;
+        List<Long> eventsIds = compilations.stream()
+                .flatMap(compilation -> compilation.getEvents().stream())
+                .map(Event::getId)
+                .distinct()
+                .toList();
+
+        Map<Long, Long> confirmedRequests = requestRepository.getConfirmedRequestsCounts(eventsIds);
+
+        return compilations.stream()
+                .map(compilation -> new CompilationDto(
+                        compilation.getId(),
+                        compilation.getPinned(),
+                        compilation.getTitle(),
+                        compilation.getEvents().stream()
+                                .map(event -> eventMapper
+                                        .toDtoShort(
+                                                event, confirmedRequests
+                                                        .getOrDefault(event.getId(), 0L)))
+                                .toList()))
+                .toList();
     }
 
     @Override
@@ -135,9 +141,9 @@ public class CompilationServiceImpl implements CompilationService {
 
         return new CompilationDto(
                 updatedCompilation.getId(),
-                preparedEvents,
                 updatedCompilation.getPinned(),
-                updatedCompilation.getTitle()
+                updatedCompilation.getTitle(),
+                preparedEvents
         );
     }
 
