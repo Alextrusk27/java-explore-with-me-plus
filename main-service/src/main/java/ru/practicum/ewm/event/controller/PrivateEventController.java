@@ -22,7 +22,6 @@ import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.UpdateRequestStatusBody;
 import ru.practicum.ewm.request.dto.UpdateRequestStatusDto;
-import ru.practicum.ewm.request.service.RequestService;
 import ru.practicum.ewm.sharing.constants.ApiPaths;
 
 import java.util.List;
@@ -34,7 +33,6 @@ import java.util.List;
 @Slf4j
 public class PrivateEventController {
     private final EventService eventService;
-    private final RequestService requestService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -94,7 +92,7 @@ public class PrivateEventController {
 
         log.info("PRIVATE: Get Participation REQUESTS in EVENT with Id {} for user with Id {}", eventId, userId);
         EventParams params = EventParams.of(userId, eventId);
-        List<ParticipationRequestDto> result = requestService.getEventRequests(params);
+        List<ParticipationRequestDto> result = eventService.getEventRequests(params);
         log.info("PRIVATE: Found {} Participation REQUESTS in EVENT with Id {} for user with Id {}",
                 result.size(), eventId, userId);
         return result;
@@ -109,7 +107,7 @@ public class PrivateEventController {
         log.info("PRIVATE: Update REQUESTS with Ids {} in EVENT with Id {} for user with Id {}. Status: {}",
                 body.requestIds(), eventId, userId, body.status());
         UpdateRequestStatusDto dto = UpdateRequestStatusDto.of(body, userId, eventId);
-        EventRequestStatusUpdateResult result = requestService.updateEventRequestStatus(dto);
+        EventRequestStatusUpdateResult result = eventService.updateEventRequestStatus(dto);
         log.info("PRIVATE: REQUESTS updated. Status CONFIRMED {} requests. Status REJECTED {} requests",
                 result.confirmedRequests().size(), result.rejectedRequests().size());
         return result;
