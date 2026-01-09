@@ -28,14 +28,6 @@ public record AdminSearchParams(
 
         Pageable pageable = PageRequest.of(from / size, size, EVENTS_DEFAULT_SORT);
 
-        if (rangeStart == null) {
-            rangeStart = NIN_DATA_TIME;
-        }
-
-        if (rangeEnd == null) {
-            rangeEnd = MAX_DATA_TIME;
-        }
-
         return new AdminSearchParams(
                 users,
                 states,

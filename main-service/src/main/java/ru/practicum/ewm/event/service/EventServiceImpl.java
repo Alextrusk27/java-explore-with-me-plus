@@ -153,7 +153,9 @@ public class EventServiceImpl implements EventService {
 
         createHit(createUri(id));
 
-        Long views = getStat(id);
+        Long views = getStat(List.of(event))
+                .getOrDefault(event.getId(), 0L);
+
         Long confirmedRequests = requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
 
         return mapper.toExtendedDto(event, views, confirmedRequests);
@@ -175,8 +177,12 @@ public class EventServiceImpl implements EventService {
         findUserOrThrow(params.userId());
 
         Event event = findEventOrThrow(params.eventId());
-        long views = getStat(params.eventId());
-        long confirmedRequests = requestRepository.countByEventIdAndStatus(params.eventId(), RequestStatus.CONFIRMED);
+
+        Long views = getStat(List.of(event))
+                .getOrDefault(params.eventId(), 0L);
+
+        long confirmedRequests = requestRepository
+                .countByEventIdAndStatus(params.eventId(), RequestStatus.CONFIRMED);
 
         return mapper.toExtendedDto(event, views, confirmedRequests);
     }
@@ -373,13 +379,22 @@ public class EventServiceImpl implements EventService {
     }
 
     private Map<Long, Long> getStat(List<Event> events) {
+        if (events.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         List<String> uris = events.stream()
                 .map(p -> EVENT_PATH_TEMPLATE + p.getId())
                 .toList();
 
+        String minDataTime = Objects.requireNonNull(events.stream()
+                .map(Event::getPublishedOn)
+                .min(Comparator.naturalOrder())
+                .toString());
+
         List<ViewStatsDto> stats = statsClient.getStats(
-                        NIN_DATA_TIME,
-                        MAX_DATA_TIME,
+                        minDataTime,
+                        LocalDateTime.now().toString(),
                         uris,
                         false)
                 .getBody();
@@ -392,25 +407,6 @@ public class EventServiceImpl implements EventService {
                 view -> extractIdFromUri(view.uri()),
                 ViewStatsDto::hits
         ));
-    }
-
-    private Long getStat(Long eventId) {
-        String uri = createUri(eventId);
-
-        ResponseEntity<List<ViewStatsDto>> response = statsClient.getStats(
-                NIN_DATA_TIME,
-                MAX_DATA_TIME,
-                List.of(uri),
-                true
-        );
-
-        if (hasInvalidResponse(response)) {
-            return 0L;
-        }
-
-        return Objects.requireNonNull(response.getBody()).stream()
-                .mapToLong(ViewStatsDto::hits)
-                .sum();
     }
 
     private void createHit(String uri) {

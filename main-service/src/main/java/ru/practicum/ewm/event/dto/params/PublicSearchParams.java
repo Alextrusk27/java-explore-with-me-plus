@@ -40,14 +40,6 @@ public record PublicSearchParams(
             }
         }
 
-        if (rangeStart == null) {
-            rangeStart = NIN_DATA_TIME;
-        }
-
-        if (rangeEnd == null) {
-            rangeEnd = MAX_DATA_TIME;
-        }
-
         Pageable pageable;
         Sort sort;
 
