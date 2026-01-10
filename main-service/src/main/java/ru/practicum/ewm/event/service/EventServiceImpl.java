@@ -83,8 +83,13 @@ public class EventServiceImpl implements EventService {
     public EventDto update(UpdateEventDto dto) {
 
         findUserOrThrow(dto.userId());
-
         Event event = findEventOrThrow(dto.eventId());
+
+        long initiatorId = event.getInitiator().getId();
+
+        if (initiatorId != dto.userId()) {
+            throw new AccessException("Only initiator can update event");
+        }
 
         if (event.getState().equals(State.PUBLISHED)) {
             throw new ConflictException("Only pending or canceled events can be changed");
