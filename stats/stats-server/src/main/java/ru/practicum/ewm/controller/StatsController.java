@@ -24,9 +24,9 @@ public class StatsController {
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public HitDto createHit(@RequestBody @Valid CreateHitDto createDto) {
-        log.debug("Create hit request: {}", createDto);
+        log.info("Create hit request: {}", createDto);
         HitDto result = statsService.save(createDto);
-        log.debug("Create hit response: {}", result);
+        log.info("Create hit response: {}", result);
         return result;
     }
 
@@ -37,9 +37,9 @@ public class StatsController {
                                        @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime end,
                                        @RequestParam(required = false) List<String> uris,
                                        @RequestParam(defaultValue = "false") Boolean unique) {
-        log.debug("Get stats request. Start: {}, End: {}, Uris: {}, Unique: {}", start, end, uris, unique);
+        log.info("Get stats request. Start: {}, End: {}, Uris: {}, Unique: {}", start, end, uris, unique);
         List<ViewStatsDto> result = statsService.getStats(start, end, uris, unique);
-        log.debug("Get stats response: {}", result);
+        log.info("Get stats response: {}", result);
         return result;
     }
 }

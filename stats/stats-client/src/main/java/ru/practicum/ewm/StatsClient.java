@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @Component
@@ -17,7 +16,7 @@ public class StatsClient {
     private final RestTemplate rest;
 
     @Autowired
-    public StatsClient(RestTemplateBuilder builder, @Value("${ewm.server.url}") String serverUrl) {
+    public StatsClient(RestTemplateBuilder builder, @Value("${ewm.stats-server.url}") String serverUrl) {
         this.rest = builder
                 .rootUri(serverUrl)
                 .build();
@@ -33,14 +32,14 @@ public class StatsClient {
     }
 
     public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
-        URI uri = UriComponentsBuilder
-                .fromPath("/stats")
+        String uri = UriComponentsBuilder
+                .fromUriString("/stats")
                 .queryParam("start", start)
                 .queryParam("end", end)
                 .queryParam("uris", uris != null ? uris.toArray() : new String[0])
                 .queryParam("unique", unique)
                 .build()
-                .toUri();
+                .toUriString();
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(defaultHeaders());
 
