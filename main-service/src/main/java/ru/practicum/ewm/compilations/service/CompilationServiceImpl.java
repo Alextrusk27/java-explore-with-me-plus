@@ -2,8 +2,8 @@ package ru.practicum.ewm.compilations.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.compilations.dto.CompilationDto;
@@ -19,6 +19,7 @@ import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.sharing.EntityName;
+import ru.practicum.ewm.sharing.PageableFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -85,7 +86,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from / size, size);
+        Pageable pageable = PageableFactory.offset(from, size, Sort.by("id"));
 
         List<Compilation> compilations = compilationRepository
                 .findAllByPinned(pinned, pageable)

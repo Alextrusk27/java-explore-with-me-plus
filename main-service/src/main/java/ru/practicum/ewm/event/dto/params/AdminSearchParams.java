@@ -1,8 +1,8 @@
 package ru.practicum.ewm.event.dto.params;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.event.model.State;
+import ru.practicum.ewm.sharing.PageableFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +27,7 @@ public record AdminSearchParams(
             Integer from,
             Integer size) {
 
-        Pageable pageable = PageRequest.of(from / size, size, EVENTS_DEFAULT_SORT);
+        Pageable pageable = PageableFactory.offset(from, size, EVENTS_DEFAULT_SORT);
 
         LocalDateTime start = null;
         LocalDateTime end = null;

@@ -5,7 +5,7 @@
     <option name="PROGRAM_PARAMETERS" value="--spring.profiles.active=dev" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="ru.practicum.ewm.*" />
+        <option name="PATTERN" value="ru.practicum.ewm.sharing.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

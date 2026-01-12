@@ -1,9 +1,9 @@
 package ru.practicum.ewm.sharing.constants;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import ru.practicum.ewm.sharing.PageableFactory;
 
 import java.time.format.DateTimeFormatter;
 
@@ -20,5 +20,5 @@ public class AppConstants {
 
     public static final Sort EVENTS_DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "eventDate");
 
-    public static final Pageable REQUESTS_DEFAULT_PAGEABLE = PageRequest.of(0, 10, Sort.by("id"));
+    public static final Pageable REQUESTS_DEFAULT_PAGEABLE = PageableFactory.offset(0, 10, Sort.by("id"));
 }
