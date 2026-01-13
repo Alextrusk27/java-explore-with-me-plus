@@ -9,12 +9,12 @@ import ru.practicum.ewm.event.model.State;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.AccessException;
 import ru.practicum.ewm.exception.ConflictException;
-import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.mapper.RequestMapper;
 import ru.practicum.ewm.request.model.ParticipationRequest;
 import ru.practicum.ewm.request.model.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
+import ru.practicum.ewm.sharing.BaseService;
 import ru.practicum.ewm.sharing.EntityName;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
@@ -27,7 +27,7 @@ import static ru.practicum.ewm.request.model.RequestStatus.CANCELED;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RequestServiceImpl implements RequestService {
+public class RequestServiceImpl extends BaseService implements RequestService {
 
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
@@ -132,11 +132,5 @@ public class RequestServiceImpl implements RequestService {
     private Event findEventOrThrow(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> throwNotFound(eventId, EntityName.EVENT));
-    }
-
-    private NotFoundException throwNotFound(Long entityId, EntityName entityName) {
-        String entityClassName = entityName.getValue();
-        log.warn("Searching failed: {} with ID {} not found", entityClassName, entityId);
-        return new NotFoundException("%s with ID %s not found".formatted(entityName, entityId));
     }
 }
