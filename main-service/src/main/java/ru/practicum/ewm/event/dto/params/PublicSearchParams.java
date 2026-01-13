@@ -36,7 +36,7 @@ public record PublicSearchParams(
             for (Long id : categories) {
                 if (id == null || id < 1) {
                     throw new ValidationException(
-                            String.format("Invalid category id: %s. Category id must be positive", id));
+                            String.format("Invalid category commentId: %s. Category commentId must be positive", id));
                 }
             }
         }

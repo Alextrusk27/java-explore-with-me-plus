@@ -16,6 +16,7 @@ public final class ApiPaths {
         public static final String CATEGORIES = "/admin/categories";
         public static final String EVENTS = "/admin/events";
         public static final String COMPILATIONS = "/admin/compilations";
+        public static final String COMMENTS = "/admin/comments";
     }
 
     @UtilityClass
@@ -23,6 +24,7 @@ public final class ApiPaths {
         public static final String COMPILATIONS = "/compilations";
         public static final String EVENTS = "/events";
         public static final String CATEGORIES = "/categories";
+        public static final String COMMENTS = "/events/{eventId}/comments";
     }
 
     @UtilityClass

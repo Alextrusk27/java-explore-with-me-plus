@@ -44,12 +44,12 @@ public class PublicEventController {
         return result;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{commentId}")
     public EventDtoExtended getEvent(@PathVariable @Positive Long id) {
 
-        log.info("PUBLIC: Get EVENT with id {}", id);
+        log.info("PUBLIC: Get EVENT with commentId {}", id);
         EventDtoExtended result = eventService.get(id);
-        log.info("PUBLIC: EVENT with id {} found", id);
+        log.info("PUBLIC: EVENT with commentId {} found", id);
         return result;
     }
 }

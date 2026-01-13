@@ -154,7 +154,7 @@ public class EventServiceImpl extends BaseService implements EventService {
         Event event = findEventOrThrow(id);
 
         if (!event.getState().equals(State.PUBLISHED)) {
-            throw new NotFoundException(String.format("Event with id=%d was not found", id));
+            throw new NotFoundException(String.format("Event with commentId=%d was not found", id));
         }
 
         createHit(createUri(id));

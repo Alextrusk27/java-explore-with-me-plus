@@ -7,8 +7,8 @@ import ru.practicum.ewm.exception.NotFoundException;
 public abstract class BaseService {
 
     protected NotFoundException throwNotFound(Long entityId, EntityName entityName) {
-        String entityClassName = entityName.getValue();
-        log.warn("{} with ID {} not found", entityClassName, entityId);
+        String className = entityName.getValue();
+        log.warn("{} with ID {} not found", className, entityId);
         return new NotFoundException("%s with ID %s not found".formatted(entityName, entityId));
     }
 }
