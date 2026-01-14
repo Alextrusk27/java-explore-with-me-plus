@@ -11,7 +11,7 @@
 
 ## 2. Приватный доступ (для авторизованных пользователей)
 ###  2.1 Добавление комментария
-`POST /users/{userId}/events/{eventId}/comments`
+`POST /users/{userId}/comments/events/{eventId}`
 Тело: один комментарий. Доступно только для опубликованных событий.
 ### 2.2 Редактирование своего комментария
 `PATCH /users/{userId}/comments/{commentId}`

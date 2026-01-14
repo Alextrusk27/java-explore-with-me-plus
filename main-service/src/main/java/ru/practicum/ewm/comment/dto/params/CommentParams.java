@@ -1,6 +1,7 @@
 package ru.practicum.ewm.comment.dto.params;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import ru.practicum.ewm.sharing.PageableFactory;
 
 public record CommentParams(
@@ -11,7 +12,7 @@ public record CommentParams(
     public static CommentParams of(Long eventId, Integer from, Integer size) {
         return new CommentParams(
                 eventId,
-                PageableFactory.offset(from, size)
+                PageableFactory.offset(from, size, Sort.by("id"))
         );
     }
 }
