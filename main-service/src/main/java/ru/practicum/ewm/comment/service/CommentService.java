@@ -11,6 +11,8 @@ public interface CommentService {
 
     CommentDto create(CreateCommentDto dto);
 
+    CommentDto get(Long id);
+
     List<CommentDto> get(CommentParams params);
 
     void delete(Long id);

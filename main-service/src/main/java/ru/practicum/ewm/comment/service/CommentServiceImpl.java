@@ -50,6 +50,12 @@ public class CommentServiceImpl extends BaseService implements CommentService {
     }
 
     @Override
+    public CommentDto get(Long id) {
+        Comment comment = findCommentOrThrow(id);
+        return mapper.toDto(comment);
+    }
+
+    @Override
     public List<CommentDto> get(CommentParams params) {
         List<Comment> comments = commentRepository.findByEventId(params.eventId(), params.pageable())
                 .getContent();

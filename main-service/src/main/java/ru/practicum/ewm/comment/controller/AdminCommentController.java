@@ -42,4 +42,13 @@ public class AdminCommentController {
         log.info("ADMIN: Comment {} updated", commentId);
         return result;
     }
+
+    @GetMapping("/{commentId}")
+    public CommentDto get(@PathVariable @Positive Long commentId) {
+
+        log.info("PUBLIC: Get comment by id {}", commentId);
+        CommentDto result = service.get(commentId);
+        log.info("PUBLIC: Found comment {}", result.id());
+        return result;
+    }
 }
