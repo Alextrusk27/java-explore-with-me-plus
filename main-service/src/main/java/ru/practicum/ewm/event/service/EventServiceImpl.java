@@ -36,6 +36,7 @@ import ru.practicum.ewm.request.mapper.RequestMapper;
 import ru.practicum.ewm.request.model.ParticipationRequest;
 import ru.practicum.ewm.request.model.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
+import ru.practicum.ewm.sharing.BaseService;
 import ru.practicum.ewm.sharing.EntityName;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
@@ -52,7 +53,7 @@ import static ru.practicum.ewm.sharing.constants.AppConstants.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl extends BaseService implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -153,7 +154,7 @@ public class EventServiceImpl implements EventService {
         Event event = findEventOrThrow(id);
 
         if (!event.getState().equals(State.PUBLISHED)) {
-            throw new NotFoundException(String.format("Event with id=%d was not found", id));
+            throw new NotFoundException(String.format("Event with Id=%d was not found", id));
         }
 
         createHit(createUri(id));
@@ -377,12 +378,6 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> throwNotFound(categoryId, EntityName.CATEGORY));
     }
 
-    private NotFoundException throwNotFound(Long entityId, EntityName entityName) {
-        String entityClassName = entityName.getValue();
-        log.warn("Searching failed: {} with ID {} not found", entityClassName, entityId);
-        return new NotFoundException("%s with ID %s not found".formatted(entityName, entityId));
-    }
-
     private Map<Long, Long> getStat(List<Event> events) {
         if (events.isEmpty()) {
             return Collections.emptyMap();
@@ -442,10 +437,6 @@ public class EventServiceImpl implements EventService {
 
         List<ViewStatsDto> body = response.getBody();
         return body != null && !body.isEmpty();
-    }
-
-    private boolean hasInvalidResponse(ResponseEntity<List<ViewStatsDto>> response) {
-        return !hasValidResponse(response);
     }
 
     private String createUri(Long eventId) {

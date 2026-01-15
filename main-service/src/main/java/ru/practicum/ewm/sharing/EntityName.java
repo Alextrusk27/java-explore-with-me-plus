@@ -10,7 +10,8 @@ public enum EntityName {
     CATEGORY("Category"),
     EVENT("Event"),
     REQUEST("Request"),
-    COMPILATION("Compilation");
+    COMPILATION("Compilation"),
+    COMMENT("Comment");
 
     private final String value;
 }

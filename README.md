@@ -1,39 +1,37 @@
 ## 1. Публичный доступ (без авторизации)
 
 ### 1.1. Просмотр комментариев к событию
-`GET /events/{event_id}/comments`
+`GET /events/{eventId}/comments`
 - Доступно всем.
 - Добавляем пагинацию и сортировку:
 - Query-параметры:
   `page (default 1), size (default 20)`
-  `sort=createdAt,desc`
   (по умолчанию от новых к старым)
 
 ## 2. Приватный доступ (для авторизованных пользователей)
 ###  2.1 Добавление комментария
-`POST /users/{userId}/events/{event_id}/comments`
+`POST /users/{userId}/comments/events/{eventId}`
 Тело: один комментарий. Доступно только для опубликованных событий.
 ### 2.2 Редактирование своего комментария
-`PATCH /users/{userId}/comments/{comment_id}`
+`PATCH /users/{userId}/comments/{commentId}`
 Доступно только автору.
 ### 2.3 Удаление своего комментария
-`DELETE /users/{userId}/comments/{comment_id}`
+`DELETE /users/{userId}/comments/{commentId}`
 - Доступно только автору комментария.
-- Удаляем право организатору события удалять комментарии
 
 ## 3. Административный доступ (для администраторов/модераторов)
 
 
 ### 3.1 Удаление любого комментария
-`DELETE /admin/comments/{comment_id}`
+`DELETE /admin/comments/{commentId}`
 Доступно админу независимо от авторства.
 
 ### 3.2 Редактирование любого комментария
-`PATCH /admin/comments/{comment_id}`
+`PATCH /admin/comments/{commentId}`
 
 
 ## 4. Примеры JSON
-Добавление комментария (POST /users/{userId}/events/{event_id}/comments)
+Добавление комментария (POST /users/{userId}/events/{eventId}/comments)
 ```
 {
   "text": "Отличное событие! Жду с нетерпением."
@@ -44,20 +42,23 @@
 {
   "id": 42,
   "text": "Отличное событие! Жду с нетерпением.",
-  "authorId": 123,
+  "author": {
+    "id": 124,
+    "name": "Иван Иванов"
+  },
   "createdAt": "2026-01-11 19:43:00",
   "eventId": 10
 }
 ```
 
-Редактирование (PATCH /users/{userId}/comments/{comment_id} или /admin/...)
+Редактирование (PATCH /users/{userId}/comments/{commentId} или /admin/...)
 ```
 {
   "text": "Отличное событие! Жду с нетерпением. (исправлено)"
 }
 ```
 Ответ (200 OK): обновлённый комментарий.
-Ответ списка комментариев (GET /events/{event_id}/comments)
+Ответ списка комментариев (GET /events/{eventId}/comments)
 
 ```
 

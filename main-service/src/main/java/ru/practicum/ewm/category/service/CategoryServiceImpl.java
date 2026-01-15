@@ -11,7 +11,7 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.ConflictException;
-import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.sharing.BaseService;
 import ru.practicum.ewm.sharing.EntityName;
 import ru.practicum.ewm.sharing.PageableFactory;
 
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl extends BaseService implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
@@ -78,7 +78,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category findCategoryOrThrow(Long categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotFoundException("%s with ID %s not found"
-                        .formatted(EntityName.CATEGORY.getValue(), categoryId)));
+                .orElseThrow(() -> throwNotFound(categoryId, EntityName.CATEGORY));
     }
 }
