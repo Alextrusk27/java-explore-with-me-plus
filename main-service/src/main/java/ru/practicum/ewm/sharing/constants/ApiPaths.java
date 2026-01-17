@@ -29,7 +29,7 @@ public final class ApiPaths {
 
     @UtilityClass
     public class Private {
-        public static final String EVENTS = "/users/{userId}/events";
+        public static final String EVENTS = "/users/{userId}/events/{eventId}/comments";
         public static final String REQUESTS = "/users/{userId}/requests";
         public static final String COMMENTS = "/users/{userId}/comments";
     }

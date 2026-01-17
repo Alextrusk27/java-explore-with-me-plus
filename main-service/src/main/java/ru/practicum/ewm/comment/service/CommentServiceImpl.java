@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.dto.CreateCommentDto;
+import ru.practicum.ewm.comment.dto.PrivateUpdateCommentDto;
 import ru.practicum.ewm.comment.dto.UpdateCommentDto;
 import ru.practicum.ewm.comment.dto.params.CommentParams;
 import ru.practicum.ewm.comment.mapper.CommentMapper;
+import ru.practicum.ewm.comment.mapper.PrivateCommentMapper;
 import ru.practicum.ewm.comment.model.Comment;
 import ru.practicum.ewm.comment.repository.CommentRepository;
 import ru.practicum.ewm.event.model.Event;
@@ -30,6 +32,7 @@ public class CommentServiceImpl extends BaseService implements CommentService {
     private final UserRepository userRepository;
 
     private final CommentMapper mapper;
+    private final PrivateCommentMapper commmentMapper;
 
     @Override
     @Transactional
@@ -80,6 +83,18 @@ public class CommentServiceImpl extends BaseService implements CommentService {
         return mapper.toDto(result);
     }
 
+    @Override
+    @Transactional
+    public CommentDto updatePrivate(PrivateUpdateCommentDto dto) {
+        Comment comment = findCommentOrThrow(dto.commentId());
+        if (dto.userId() != null &&
+            !comment.getAuthor().getId().equals(dto.userId())) {
+            throw new ConflictException("вы не автоор этого комментария");
+        }
+        commmentMapper.updateEntity(dto, comment);
+        return commmentMapper.toDto(commentRepository.save(comment));
+    }
+
     private Comment findCommentOrThrow(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> throwNotFound(commentId, EntityName.COMMENT));
@@ -93,5 +108,15 @@ public class CommentServiceImpl extends BaseService implements CommentService {
     private Event findEventOrThrow(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> throwNotFound(eventId, EntityName.EVENT));
+    }
+
+    @Override
+    @Transactional
+    public void deleteByUser(Long userId, Long commentId) {
+        Comment comment = findCommentOrThrow(commentId);
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new ConflictException("вы не автоор этого комментария");
+        }
+        commentRepository.delete(comment);
     }
 }
