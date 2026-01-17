@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.dto.CreateCommentDto;
+import ru.practicum.ewm.comment.dto.PrivateUpdateCommentDto;
 import ru.practicum.ewm.comment.dto.UpdateCommentDto;
 import ru.practicum.ewm.comment.dto.params.CommentParams;
 import ru.practicum.ewm.comment.dto.request.CreateCommentBody;
@@ -33,8 +34,7 @@ public class PrivateCommentController {
             @Valid @RequestBody CreateCommentBody body
     ) {
         log.info("PRIVATE: Юзер {} создал комментарий для события {}: {}", userId, eventId, body.text());
-        CreateCommentDto dto = CreateCommentDto.of(userId, eventId, body);
-        return service.create(dto);
+        return service.create(CreateCommentDto.of(userId, eventId, body));
     }
 
     @GetMapping
@@ -65,8 +65,7 @@ public class PrivateCommentController {
             @Valid @RequestBody UpdateCommentBody body
     ) {
         log.info("PRIVATE: Юзер {} обновио свой комментраий {}", userId, commentId);
-        UpdateCommentDto dto = UpdateCommentDto.of(commentId, body);
-        return service.update(dto);
+        return service.updatePrivate(PrivateUpdateCommentDto.of(userId, commentId, body));
     }
 
     @DeleteMapping("/{commentId}")
@@ -76,7 +75,7 @@ public class PrivateCommentController {
             @PathVariable Long commentId
     ) {
         log.info("PRIVATE: юзер {} удалил свой комментарий {}", userId, commentId);
-        service.delete(commentId);
+        service.deleteByUser(userId, commentId);
     }
 }
 
