@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.dto.CreateCommentDto;
 import ru.practicum.ewm.comment.dto.PrivateUpdateCommentDto;
-import ru.practicum.ewm.comment.dto.UpdateCommentDto;
 import ru.practicum.ewm.comment.dto.params.CommentParams;
 import ru.practicum.ewm.comment.dto.request.CreateCommentBody;
 import ru.practicum.ewm.comment.dto.request.UpdateCommentBody;
