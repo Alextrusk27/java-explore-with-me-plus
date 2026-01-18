@@ -296,9 +296,10 @@ public class EventServiceImpl extends BaseService implements EventService {
 
         if (!event.getInitiator().getId().equals(dto.userId())) {
             throw new AccessException(
-                    ("User %d is not authorized to manage requests for event %d. " +
-                     "Only event initiator can perform this action")
-                            .formatted(dto.userId(), dto.eventId())
+                    """
+                    User %d is not authorized to manage requests for event %d.
+                    Only event initiator can perform this action.
+                    """.formatted(dto.userId(), dto.eventId())
             );
         }
 
