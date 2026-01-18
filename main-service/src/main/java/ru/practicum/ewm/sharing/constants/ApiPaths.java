@@ -1,7 +1,6 @@
 package ru.practicum.ewm.sharing.constants;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * API path constants for the entire application.
