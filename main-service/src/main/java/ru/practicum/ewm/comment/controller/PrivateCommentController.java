@@ -43,7 +43,7 @@ public class PrivateCommentController {
             @PathVariable("userId") Long userId,
             @PathVariable("eventId") Long eventId,
             @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "5") int size
     ) {
         log.info("PRIVATE: Get comments for event {} by user {} from {} size {}", eventId, userId, from, size);
         CommentParams params = CommentParams.of(eventId, from, size);

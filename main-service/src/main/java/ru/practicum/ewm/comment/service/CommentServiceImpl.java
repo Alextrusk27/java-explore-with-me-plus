@@ -60,7 +60,6 @@ public class CommentServiceImpl extends BaseService implements CommentService {
     public List<CommentDto> get(CommentParams params) {
         List<Comment> comments = commentRepository.findByEventId(params.eventId(), params.pageable())
                 .getContent();
-
         return comments.stream()
                 .map(mapper::toDto)
                 .toList();
