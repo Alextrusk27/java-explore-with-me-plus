@@ -105,7 +105,7 @@ public class EventServiceImpl extends BaseService implements EventService {
 
         if (dto.hasStateAction()) {
             if (dto.stateAction() == StateAction.PUBLISH_EVENT ||
-                    (dto.stateAction() == StateAction.REJECT_EVENT)) {
+                (dto.stateAction() == StateAction.REJECT_EVENT)) {
                 throw new IllegalArgumentException("Illegal private state action: %s".formatted(dto.stateAction()));
             }
             applyStateAction(event, dto.stateAction());
@@ -124,15 +124,15 @@ public class EventServiceImpl extends BaseService implements EventService {
 
         if (dto.hasStateAction()) {
             if ((dto.stateAction() == StateAction.PUBLISH_EVENT ||
-                    dto.stateAction() == StateAction.REJECT_EVENT) &&
-                    event.getState() != State.PENDING) {
+                 dto.stateAction() == StateAction.REJECT_EVENT) &&
+                event.getState() != State.PENDING) {
 
                 throw new ConflictException("Cannot publish/reject the event because it's not in the right state: %s"
                         .formatted(event.getState()));
 
             }
             if (dto.stateAction() == StateAction.SEND_TO_REVIEW ||
-                    dto.stateAction() == StateAction.CANCEL_REVIEW) {
+                dto.stateAction() == StateAction.CANCEL_REVIEW) {
                 throw new IllegalArgumentException("Illegal admin state action: %s".formatted(dto.stateAction()));
             }
 
@@ -297,7 +297,7 @@ public class EventServiceImpl extends BaseService implements EventService {
         if (!event.getInitiator().getId().equals(dto.userId())) {
             throw new AccessException(
                     ("User %d is not authorized to manage requests for event %d. " +
-                            "Only event initiator can perform this action")
+                     "Only event initiator can perform this action")
                             .formatted(dto.userId(), dto.eventId())
             );
         }
