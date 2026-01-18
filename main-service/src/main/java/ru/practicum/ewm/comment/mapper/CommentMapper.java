@@ -7,12 +7,13 @@ import ru.practicum.ewm.comment.dto.UpdateCommentDto;
 import ru.practicum.ewm.comment.model.Comment;
 import ru.practicum.ewm.user.mapper.UserMapper;
 
-@Mapper(uses = {UserMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface CommentMapper {
 
     @Mapping(target = "eventId", source = "event.id")
     CommentDto toDto(Comment comment);
 
+    @Mapping(target = "text", source = "text")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "createdOn", ignore = true)

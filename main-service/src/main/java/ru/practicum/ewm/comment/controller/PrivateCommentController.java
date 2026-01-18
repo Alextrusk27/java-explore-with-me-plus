@@ -28,8 +28,8 @@ public class PrivateCommentController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CommentDto createComment(
-            @PathVariable Long userId,
-            @RequestParam Long eventId,
+            @PathVariable("userId") Long userId,
+            @PathVariable("eventId") Long eventId,
             @Valid @RequestBody CreateCommentBody body
     ) {
         log.info("PRIVATE: Юзер {} создал комментарий для события {}: {}", userId, eventId, body.text());
@@ -38,8 +38,8 @@ public class PrivateCommentController {
 
     @GetMapping
     public List<CommentDto> getComments(
-            @PathVariable Long userId,
-            @RequestParam Long eventId,
+            @PathVariable("userId") Long userId,
+            @PathVariable("eventId") Long eventId,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -50,8 +50,8 @@ public class PrivateCommentController {
 
     @GetMapping("/{commentId}")
     public CommentDto getComment(
-            @PathVariable Long userId,
-            @PathVariable Long commentId
+            @PathVariable("userId") Long userId,
+            @PathVariable("commentId") Long commentId
     ) {
         log.info("PRIVATE: Юзер {} получил комментарий {}", userId, commentId);
         return service.get(commentId);
@@ -59,8 +59,8 @@ public class PrivateCommentController {
 
     @PatchMapping("/{commentId}")
     public CommentDto updateComment(
-            @PathVariable Long userId,
-            @PathVariable Long commentId,
+            @PathVariable("userId") Long userId,
+            @PathVariable("commentId") Long commentId,
             @Valid @RequestBody UpdateCommentBody body
     ) {
         log.info("PRIVATE: Юзер {} обновио свой комментраий {}", userId, commentId);
@@ -70,8 +70,8 @@ public class PrivateCommentController {
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(
-            @PathVariable Long userId,
-            @PathVariable Long commentId
+            @PathVariable("userId") Long userId,
+            @PathVariable("commentId") Long commentId
     ) {
         log.info("PRIVATE: юзер {} удалил свой комментарий {}", userId, commentId);
         service.deleteByUser(userId, commentId);
