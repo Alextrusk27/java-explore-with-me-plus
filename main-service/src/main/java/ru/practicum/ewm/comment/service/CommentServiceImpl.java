@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.dto.CreateCommentDto;
+import ru.practicum.ewm.comment.dto.PrivateUpdateCommentDto;
 import ru.practicum.ewm.comment.dto.UpdateCommentDto;
 import ru.practicum.ewm.comment.dto.params.CommentParams;
 import ru.practicum.ewm.comment.mapper.CommentMapper;
@@ -59,7 +60,6 @@ public class CommentServiceImpl extends BaseService implements CommentService {
     public List<CommentDto> get(CommentParams params) {
         List<Comment> comments = commentRepository.findByEventId(params.eventId(), params.pageable())
                 .getContent();
-
         return comments.stream()
                 .map(mapper::toDto)
                 .toList();
@@ -78,6 +78,28 @@ public class CommentServiceImpl extends BaseService implements CommentService {
         mapper.updateEntity(dto, comment);
         Comment result = commentRepository.save(comment);
         return mapper.toDto(result);
+    }
+
+    @Override
+    @Transactional
+    public CommentDto updatePrivate(PrivateUpdateCommentDto dto) {
+        Comment comment = findCommentOrThrow(dto.commentId());
+        if (dto.userId() != null &&
+            !comment.getAuthor().getId().equals(dto.userId())) {
+            throw new ConflictException("You are not the author of this comment");
+        }
+        mapper.updatePrivateEntity(dto, comment);
+        return mapper.toDto(commentRepository.save(comment));
+    }
+
+    @Override
+    @Transactional
+    public void deleteByUser(Long userId, Long commentId) {
+        Comment comment = findCommentOrThrow(commentId);
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new ConflictException("You are not the author of this comment");
+        }
+        commentRepository.delete(comment);
     }
 
     private Comment findCommentOrThrow(Long commentId) {
