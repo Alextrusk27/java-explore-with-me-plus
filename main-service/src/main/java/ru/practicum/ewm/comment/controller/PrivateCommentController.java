@@ -19,21 +19,23 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(ApiPaths.Private.PRVATE_EVENTS)
+@RequestMapping(ApiPaths.Private.COMMENTS)
 @Validated
 @Slf4j
 public class PrivateCommentController {
     private final CommentService service;
 
-    @PostMapping
+    @PostMapping("/events/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
     public CommentDto createComment(
             @PathVariable("userId") Long userId,
             @PathVariable("eventId") Long eventId,
             @Valid @RequestBody CreateCommentBody body
     ) {
-        log.info("PRIVATE: Юзер {} создал комментарий для события {}: {}", userId, eventId, body.text());
-        return service.create(CreateCommentDto.of(userId, eventId, body));
+        log.info("PRIVATE: Create comment '{}' for event {} by user {}", body.text(), eventId, userId);
+        CommentDto result = service.create(CreateCommentDto.of(userId, eventId, body));
+        log.info("PRIVATE: Comment created with id {}", result.id());
+        return result;
     }
 
     @GetMapping
@@ -43,9 +45,11 @@ public class PrivateCommentController {
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
     ) {
-        log.info("PRIVATE: Юзер {} получил комментарий по эвенту {} from {} size {}", userId, eventId, from, size);
+        log.info("PRIVATE: Get comments for event {} by user {} from {} size {}", eventId, userId, from, size);
         CommentParams params = CommentParams.of(eventId, from, size);
-        return service.get(params);
+        List<CommentDto> result = service.get(params);
+        log.info("PRIVATE: Get comments completed for event {} by user {}", eventId, userId);
+        return result;
     }
 
     @GetMapping("/{commentId}")
@@ -53,8 +57,10 @@ public class PrivateCommentController {
             @PathVariable("userId") Long userId,
             @PathVariable("commentId") Long commentId
     ) {
-        log.info("PRIVATE: Юзер {} получил комментарий {}", userId, commentId);
-        return service.get(commentId);
+        log.info("PRIVATE: User {} get comment {}", userId, commentId);
+        CommentDto result = service.get(commentId);
+        log.info("PRIVATE: Found comment {}", result.id());
+        return result;
     }
 
     @PatchMapping("/{commentId}")
@@ -63,8 +69,10 @@ public class PrivateCommentController {
             @PathVariable("commentId") Long commentId,
             @Valid @RequestBody UpdateCommentBody body
     ) {
-        log.info("PRIVATE: Юзер {} обновио свой комментраий {}", userId, commentId);
-        return service.updatePrivate(PrivateUpdateCommentDto.of(userId, commentId, body));
+        log.info("PRIVATE: Update comment {} by user {}", commentId, userId);
+        CommentDto result = service.updatePrivate(PrivateUpdateCommentDto.of(userId, commentId, body));
+        log.info("PRIVATE: Comment {} updated", result.id());
+        return result;
     }
 
     @DeleteMapping("/{commentId}")
@@ -73,8 +81,9 @@ public class PrivateCommentController {
             @PathVariable("userId") Long userId,
             @PathVariable("commentId") Long commentId
     ) {
-        log.info("PRIVATE: юзер {} удалил свой комментарий {}", userId, commentId);
+        log.info("PRIVATE: Delete comment {} by user {}", commentId, userId);
         service.deleteByUser(userId, commentId);
+        log.info("PRIVATE: Comment {} deleted", commentId);
     }
 }
 
