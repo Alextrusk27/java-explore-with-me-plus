@@ -2,8 +2,8 @@ package ru.practicum.ewm.compilations.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.compilations.dto.CompilationDto;
@@ -16,9 +16,10 @@ import ru.practicum.ewm.event.dto.EventDtoShortWithoutViews;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.repository.RequestRepository;
+import ru.practicum.ewm.sharing.BaseService;
 import ru.practicum.ewm.sharing.EntityName;
+import ru.practicum.ewm.sharing.PageableFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class CompilationServiceImpl implements CompilationService {
+public class CompilationServiceImpl extends BaseService implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
@@ -85,7 +86,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from / size, size);
+        Pageable pageable = PageableFactory.offset(from, size, Sort.by("id"));
 
         List<Compilation> compilations = compilationRepository
                 .findAllByPinned(pinned, pageable)
@@ -159,8 +160,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private Compilation findCompilationOrThrow(Long compilationId) {
         return compilationRepository.findById(compilationId)
-                .orElseThrow(() -> new NotFoundException("%s with ID %s not found"
-                        .formatted(EntityName.COMPILATION.getValue(), compilationId)));
+                .orElseThrow(() -> throwNotFound(compilationId, EntityName.COMPILATION));
     }
 
     private List<EventDtoShortWithoutViews> prepareEvents(Compilation compilation) {

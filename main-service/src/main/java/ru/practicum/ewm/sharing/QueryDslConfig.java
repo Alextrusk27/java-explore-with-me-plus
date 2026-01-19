@@ -1,4 +1,4 @@
-package ru.practicum.ewm;
+package ru.practicum.ewm.sharing;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

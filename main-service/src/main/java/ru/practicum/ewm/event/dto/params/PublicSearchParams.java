@@ -1,9 +1,9 @@
 package ru.practicum.ewm.event.dto.params;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.event.service.Sort;
 import ru.practicum.ewm.exception.ValidationException;
+import ru.practicum.ewm.sharing.PageableFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +36,7 @@ public record PublicSearchParams(
             for (Long id : categories) {
                 if (id == null || id < 1) {
                     throw new ValidationException(
-                            String.format("Invalid category id: %s. Category id must be positive", id));
+                            String.format("Invalid category commentId: %s. Category commentId must be positive", id));
                 }
             }
         }
@@ -51,11 +51,11 @@ public record PublicSearchParams(
                 Sort.valueOf(stringSort) == Sort.EVENT_DATE) {
 
             sort = Sort.EVENT_DATE;
-            pageable = PageRequest.of(from / size, size, EVENTS_DEFAULT_SORT);
+            pageable = PageableFactory.offset(from, size, EVENTS_DEFAULT_SORT);
 
         } else {
             sort = Sort.VIEWS;
-            pageable = PageRequest.of(from / size, size);
+            pageable = PageableFactory.offset(from, size);
         }
 
         if (rangeStart != null && !rangeStart.isBlank()) {

@@ -36,6 +36,7 @@ import ru.practicum.ewm.request.mapper.RequestMapper;
 import ru.practicum.ewm.request.model.ParticipationRequest;
 import ru.practicum.ewm.request.model.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
+import ru.practicum.ewm.sharing.BaseService;
 import ru.practicum.ewm.sharing.EntityName;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
@@ -52,7 +53,7 @@ import static ru.practicum.ewm.sharing.constants.AppConstants.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl extends BaseService implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -104,7 +105,7 @@ public class EventServiceImpl implements EventService {
 
         if (dto.hasStateAction()) {
             if (dto.stateAction() == StateAction.PUBLISH_EVENT ||
-                    (dto.stateAction() == StateAction.REJECT_EVENT)) {
+                (dto.stateAction() == StateAction.REJECT_EVENT)) {
                 throw new IllegalArgumentException("Illegal private state action: %s".formatted(dto.stateAction()));
             }
             applyStateAction(event, dto.stateAction());
@@ -123,15 +124,15 @@ public class EventServiceImpl implements EventService {
 
         if (dto.hasStateAction()) {
             if ((dto.stateAction() == StateAction.PUBLISH_EVENT ||
-                    dto.stateAction() == StateAction.REJECT_EVENT) &&
-                    event.getState() != State.PENDING) {
+                 dto.stateAction() == StateAction.REJECT_EVENT) &&
+                event.getState() != State.PENDING) {
 
                 throw new ConflictException("Cannot publish/reject the event because it's not in the right state: %s"
                         .formatted(event.getState()));
 
             }
             if (dto.stateAction() == StateAction.SEND_TO_REVIEW ||
-                    dto.stateAction() == StateAction.CANCEL_REVIEW) {
+                dto.stateAction() == StateAction.CANCEL_REVIEW) {
                 throw new IllegalArgumentException("Illegal admin state action: %s".formatted(dto.stateAction()));
             }
 
@@ -153,7 +154,7 @@ public class EventServiceImpl implements EventService {
         Event event = findEventOrThrow(id);
 
         if (!event.getState().equals(State.PUBLISHED)) {
-            throw new NotFoundException(String.format("Event with id=%d was not found", id));
+            throw new NotFoundException(String.format("Event with Id=%d was not found", id));
         }
 
         createHit(createUri(id));
@@ -295,9 +296,10 @@ public class EventServiceImpl implements EventService {
 
         if (!event.getInitiator().getId().equals(dto.userId())) {
             throw new AccessException(
-                    ("User %d is not authorized to manage requests for event %d. " +
-                            "Only event initiator can perform this action")
-                            .formatted(dto.userId(), dto.eventId())
+                    """
+                    User %d is not authorized to manage requests for event %d.
+                    Only event initiator can perform this action.
+                    """.formatted(dto.userId(), dto.eventId())
             );
         }
 
@@ -377,12 +379,6 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> throwNotFound(categoryId, EntityName.CATEGORY));
     }
 
-    private NotFoundException throwNotFound(Long entityId, EntityName entityName) {
-        String entityClassName = entityName.getValue();
-        log.warn("Searching failed: {} with ID {} not found", entityClassName, entityId);
-        return new NotFoundException("%s with ID %s not found".formatted(entityName, entityId));
-    }
-
     private Map<Long, Long> getStat(List<Event> events) {
         if (events.isEmpty()) {
             return Collections.emptyMap();
@@ -442,10 +438,6 @@ public class EventServiceImpl implements EventService {
 
         List<ViewStatsDto> body = response.getBody();
         return body != null && !body.isEmpty();
-    }
-
-    private boolean hasInvalidResponse(ResponseEntity<List<ViewStatsDto>> response) {
-        return !hasValidResponse(response);
     }
 
     private String createUri(Long eventId) {

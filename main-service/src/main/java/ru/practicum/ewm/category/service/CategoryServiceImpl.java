@@ -1,7 +1,7 @@
 package ru.practicum.ewm.category.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.dto.CategoryDto;
@@ -11,15 +11,16 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.ConflictException;
-import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.sharing.BaseService;
 import ru.practicum.ewm.sharing.EntityName;
+import ru.practicum.ewm.sharing.PageableFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl extends BaseService implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
@@ -66,13 +67,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
-        return categoryRepository.findAll(PageRequest.of(from / size, size)).stream()
+        Pageable pageable = PageableFactory.offset(from, size);
+
+        List<Category> result = categoryRepository.findAll(pageable)
+                .getContent();
+
+        return result.stream()
                 .map(categoryMapper::toDto).collect(Collectors.toList());
     }
 
     private Category findCategoryOrThrow(Long categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotFoundException("%s with ID %s not found"
-                        .formatted(EntityName.CATEGORY.getValue(), categoryId)));
+                .orElseThrow(() -> throwNotFound(categoryId, EntityName.CATEGORY));
     }
 }
