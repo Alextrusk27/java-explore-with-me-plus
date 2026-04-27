@@ -1,86 +1,81 @@
-## 1. Публичный доступ (без авторизации)
+# Explore With Me (Афиша)
 
-### 1.1. Просмотр комментариев к событию
-`GET /events/{eventId}/comments`
-- Доступно всем.
-- Добавляем пагинацию и сортировку:
-- Query-параметры:
-  `page (default 1), size (default 20)`
-  (по умолчанию от новых к старым)
+Микросервисная платформа для создания событий, поиска участников, сбора статистики и комментирования.
 
-## 2. Приватный доступ (для авторизованных пользователей)
-###  2.1 Добавление комментария
-`POST /users/{userId}/comments/events/{eventId}`
-Тело: один комментарий. Доступно только для опубликованных событий.
-### 2.2 Редактирование своего комментария
-`PATCH /users/{userId}/comments/{commentId}`
-Доступно только автору.
-### 2.3 Удаление своего комментария
-`DELETE /users/{userId}/comments/{commentId}`
-- Доступно только автору комментария.
+| Файл | Описание |
+|------|----------|
+| [`ewm-main-service-spec.json`](ewm-main-service-spec.json) | OpenAPI спецификация основного сервиса |
+| [`ewm-stats-service-spec.json`](ewm-stats-service-spec.json) | OpenAPI спецификация сервиса статистики |
 
-## 3. Административный доступ (для администраторов/модераторов)
+##  👥 Команда
 
+- [Nikolay Aleksandrov](https://github.com/Alextrusk27) — Team Lead, разработчик
+- [Andrey Zavrichko](https://github.com/andreyzavrichko) — разработчик
+- [Fsmnza](https://github.com/Fsmnza) — разработчик
+- [munuprig](https://github.com/munuprig) — разработчик
 
-### 3.1 Удаление любого комментария
-`DELETE /admin/comments/{commentId}`
-Доступно админу независимо от авторства.
+## Maven-архитектура
 
-### 3.2 Редактирование любого комментария
-`PATCH /admin/comments/{commentId}`
-
-
-## 4. Примеры JSON
-Добавление комментария (POST /users/{userId}/events/{eventId}/comments)
-```
-{
-  "text": "Отличное событие! Жду с нетерпением."
-}
-```
-Ответ (201 Created):
-```
-{
-  "id": 42,
-  "text": "Отличное событие! Жду с нетерпением.",
-  "author": {
-    "id": 124,
-    "name": "Иван Иванов"
-  },
-  "createdAt": "2026-01-11 19:43:00",
-  "eventId": 10
-}
+```text
+explore-with-me/                         # Parent POM
+│
+├── stats/                               # Сервис статистики
+│   ├── dto/                             # Общие DTO
+│   ├── client/                          # HTTP-клиент
+│   └── server/                          # HTTP-сервер
+│
+└── main-service/                        # Основной сервис 
 ```
 
-Редактирование (PATCH /users/{userId}/comments/{commentId} или /admin/...)
-```
-{
-  "text": "Отличное событие! Жду с нетерпением. (исправлено)"
-}
-```
-Ответ (200 OK): обновлённый комментарий.
-Ответ списка комментариев (GET /events/{eventId}/comments)
+## 📊 Сервис статистики
 
-```
+Сервис на **Spring Web + JPA + PostgreSQL** для сбора просмотров событий (`GET /events` и `GET /events/{id}`). Предоставляет API записи хитов (`POST /hit`) и выгрузки статистики (`GET /stats`). Включает **HTTP-клиент (RestTemplate)** для интеграции с основным сервисом.
 
- [
-    {
-      "id": 45,
-      "text": "Новый комментарий",
-      "author": {
-        "id": 124,
-        "name": "Иван Иванов"
-      },
-      "createdAt": "2026-01-11 19:43:00"
-    },
-    {
-      "id": 42,
-      "text": "Старый комментарий",
-      "author": {
-        "id": 123,
-        "name": "Пётр Петров"
-      },
-      "createdAt": "2026-01-11 19:43:00"
-    }
-  ]
+## 🎯 Основной сервис
 
+Трёхуровневый REST API на **Spring Web + JPA** с ролевой моделью (PUBLIC/PRIVATE/ADMIN).
+
+**PUBLIC** — поиск событий с фильтрацией и сортировкой (по просмотрам или дате). Каждый запрос логируется через **stats-client**.
+
+**PRIVATE** — создание и редактирование событий, подача заявок на участие, комментарии.
+
+**ADMIN** — модерация событий, CRUD категорий и подборок, управление пользователями.
+
+Событие проходит жизненный цикл: создание → ожидание публикации → опубликовано / отменено.  
+
+## 🛠 Технологический стек
+
+| Технология | Назначение |
+|------------|------------|
+| **Java** | Основной язык |
+| **Spring Boot** | Фреймворк |
+| **Spring Web MVC** | REST API |
+| **Spring Data JPA** | ORM + репозитории |
+| **Query DSL** | Типобезопасные динамические запросы |
+| **PostgreSQL** | База данных |
+| **Spring Validation** | Валидация DTO |
+| **MapStruct** | Маппинг Entity ↔ DTO |
+| **RestTemplate** | HTTP-клиент |
+| **Spring Boot Actuator** | Мониторинг |
+| **Maven** | Сборка проекта |
+| **Docker** | Контейнеризация |
+| **Lombok** | Генерация кода |
+| **Postman** | Тестирование API (коллекции в `/postman`) |
+
+## 🚀 Запуск проекта в Docker
+
+```bash
+# 1. Клонировать репозиторий
+git clone https://github.com/Alextrusk27/java-explore-with-me-plus.git
+cd java-explore-with-me-plus
+
+# 2. Собрать проект
+mvn clean package
+
+# 3. Запустить контейнеры
+docker-compose up -d
+
+# 4. Проверить работоспособность
+curl http://localhost:8080/actuator/health   # Основной сервис
+curl http://localhost:9090/actuator/health   # Сервис статистики
 ```
